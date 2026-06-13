@@ -1,5 +1,5 @@
 import type { GmailMessage } from "@/features/channels/gmail/types";
-import type { Message } from "@/features/inbox/types";
+import { Message } from "@/types/index";
 
 export function parseGmailMessage(raw: GmailMessage): Message {
   const getHeader = (name: string) =>

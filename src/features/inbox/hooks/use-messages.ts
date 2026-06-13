@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import type { Message } from "@/features/inbox/types";
+import { Message } from "@/types";
 
 export function useMessages() {
   return useQuery({

@@ -1,5 +1,5 @@
 import type { SlackMessage } from "@/features/channels/slack/types";
-import type { Message } from "@/features/inbox/types";
+import { Message } from "@/types";
 
 export function parseSlackMessage(raw: SlackMessage): Message {
   return {

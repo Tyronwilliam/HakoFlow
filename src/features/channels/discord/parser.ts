@@ -1,5 +1,5 @@
 import type { DiscordMessage } from "@/features/channels/discord/types";
-import type { Message } from "@/features/inbox/types";
+import { Message } from "@/types";
 
 export function parseDiscordMessage(raw: DiscordMessage): Message {
   return {

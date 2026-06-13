@@ -1,5 +1,11 @@
 import { Badge } from "@/components/ui/badge";
-import { CHANNELS_LIST, Channel as ChannelType } from "../../types/shared";
+import { type Channel as ChannelType } from "@/types";
+
+export const CHANNELS_LIST = {
+  gmail: "Gmail",
+  discord: "Discord",
+  slack: "Slack",
+} as const;
 
 const CHANNEL_COLORS: Record<ChannelType, string> = {
   gmail: "bg-red-100 text-red-700",
