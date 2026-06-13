@@ -18,6 +18,14 @@ avec les valeurs du projet Supabase (`Project Settings > API`) :
 cp .env.local.example .env.local
 ```
 
+> ⚠️ `next dev` exécute [`src/proxy.ts`](../src/proxy.ts) sur chaque requête,
+> qui appelle `createServerClient()` (voir [`src/lib/supabase/proxy.ts`](../src/lib/supabase/proxy.ts)) —
+> cette fonction lève une erreur si `NEXT_PUBLIC_SUPABASE_URL` ou
+> `NEXT_PUBLIC_SUPABASE_ANON_KEY` sont vides. Un `.env.local` est donc
+> **obligatoire**, même avec des valeurs placeholder (ex:
+> `https://placeholder.supabase.co`), pour pouvoir lancer `bun run dev` ou
+> `bun run test:e2e` sans projet Supabase réel.
+
 | Variable                        | Où la trouver                             | Exposée au client ?                            |
 | ------------------------------- | ----------------------------------------- | ---------------------------------------------- |
 | `NEXT_PUBLIC_SUPABASE_URL`      | Project Settings > API > Project URL      | Oui (préfixe `NEXT_PUBLIC_`)                   |
@@ -173,7 +181,8 @@ const supabase = createClient();
   à partir du schéma réel, et typer `createClient<Database>(...)`.
 - **Tests** : mocker `@supabase/ssr` avec MSW ou des mocks Vitest pour tester les
   Server Actions sans appeler le vrai Supabase (voir [vitest.md](./vitest.md)).
-- **Secrets CI/Vercel** : ajouter `NEXT_PUBLIC_SUPABASE_URL`,
-  `NEXT_PUBLIC_SUPABASE_ANON_KEY` et `SUPABASE_SERVICE_ROLE_KEY` dans
-  `Settings > Secrets and variables` (GitHub) et dans les variables
-  d'environnement du projet Vercel.
+- **Secrets Vercel** : ajouter `NEXT_PUBLIC_SUPABASE_URL`,
+  `NEXT_PUBLIC_SUPABASE_ANON_KEY` et `SUPABASE_SERVICE_ROLE_KEY` dans les
+  variables d'environnement du projet Vercel avant le premier déploiement
+  (le job `e2e` de la CI utilise déjà des valeurs placeholder, voir
+  [ci.md](./ci.md), mais le déploiement réel a besoin du vrai projet Supabase).
