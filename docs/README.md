@@ -15,7 +15,11 @@ hakoflow/
 ├── src/
 │   ├── app/             # App Router Next.js (pages, layouts, routes)
 │   ├── components/ui/   # Composants Shadcn/ui
-│   └── lib/             # Fonctions utilitaires partagées (cn, helpers...)
+│   ├── lib/
+│   │   ├── supabase/    # Clients Supabase (browser, server, proxy)
+│   │   └── utils.ts     # Fonctions utilitaires partagées (cn...)
+│   └── proxy.ts         # Proxy Next.js 16 (ex-middleware) — session Supabase
+├── .env.local.example   # Modèle des variables d'environnement (Supabase...)
 ├── commitlint.config.ts # Règles de validation des messages de commit
 ├── eslint.config.mjs    # Configuration ESLint
 ├── playwright.config.ts # Configuration des tests e2e
@@ -36,6 +40,7 @@ hakoflow/
 | Husky + Commitlint  | Git hooks & validation des messages de commit        | [husky.md](./husky.md)                   |
 | Release Please      | Versioning & changelog automatisés                   | [release-please.md](./release-please.md) |
 | CI (GitHub Actions) | Pipeline de vérification automatique                 | [ci.md](./ci.md)                         |
+| Supabase            | Base de données, auth, session (clients + proxy)     | [supabase.md](./supabase.md)             |
 
 ## Stack globale (rappel)
 
