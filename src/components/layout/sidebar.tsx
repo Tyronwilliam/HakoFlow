@@ -12,11 +12,7 @@ const links = [
 export function Sidebar() {
   return (
     <nav className="flex flex-col gap-1 border-r p-4">
-      <div
-        className={
-          "bg-primary text-primary-foreground mb-6 flex h-9 w-9 items-center justify-center rounded-lg"
-        }
-      >
+      <div className="bg-primary text-primary-foreground mb-6 flex h-9 w-9 items-center justify-center rounded-lg">
         HK
       </div>
       {links.map(({ href, icon: Icon }) => (

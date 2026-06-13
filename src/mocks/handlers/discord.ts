@@ -1,4 +1,5 @@
 import { http, HttpResponse } from "msw";
+import discordMessages from "@/mocks/data/discord.json";
 
 const handlers = {
   getDiscordChannel: http.get("https://discord.com/api/v10/users/@me/channels", () => {
@@ -13,21 +14,7 @@ const handlers = {
   }),
 
   getDiscordMessages: http.get("https://discord.com/api/v10/channels/:id/messages", () => {
-    return HttpResponse.json([
-      {
-        id: "1234567890",
-        channel_id: "9876543210",
-        author: {
-          id: "111222333",
-          username: "lucas_dev",
-          global_name: "Lucas",
-        },
-        content: "Hey t'es dispo pour un projet ?",
-        timestamp: "2026-06-12T09:42:00.000Z",
-        attachments: [],
-        type: 0,
-      },
-    ]);
+    return HttpResponse.json(discordMessages);
   }),
 };
 
