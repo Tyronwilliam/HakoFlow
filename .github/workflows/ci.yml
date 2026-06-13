@@ -8,6 +8,7 @@ on:
 
 jobs:
   ci:
+    name: Lint, typecheck, unit tests & build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -43,6 +44,7 @@ jobs:
         run: bun run build
 
   e2e:
+    name: End-to-end tests (Playwright)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
