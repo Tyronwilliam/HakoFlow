@@ -25,6 +25,7 @@ on:
 
 jobs:
   ci:
+    name: Lint, typecheck, unit tests & build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -60,6 +61,7 @@ jobs:
         run: bun run build
 
   e2e:
+    name: End-to-end tests (Playwright)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -79,10 +81,25 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('bun.lock') }}
+
       - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: bunx playwright install --with-deps
 
+      - name: Install Playwright system dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: bunx playwright install-deps
+
       - name: Run e2e tests
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
         run: bun run test:e2e
 
       - name: Upload Playwright report
@@ -130,12 +147,24 @@ premier échec (comportement par défaut de GitHub Actions) :
 ### Job `e2e`
 
 1. Checkout + setup Bun + cache (identique au job `ci`).
-2. **`bunx playwright install --with-deps`** — télécharge les navigateurs
-   (Chromium, Firefox, WebKit) et leurs dépendances système, nécessaires car les
-   runners GitHub ne les ont pas préinstallés.
+2. **`actions/cache@v4` sur `~/.cache/ms-playwright`** — met en cache les
+   binaires des navigateurs (Chromium, Firefox, WebKit, ~300 Mo), clé basée sur
+   `bun.lock` (donc invalidée si la version de `@playwright/test` change).
+   - **Cache miss** : `bunx playwright install --with-deps` télécharge les
+     navigateurs **et** leurs dépendances système (paquets apt).
+   - **Cache hit** : les navigateurs sont déjà présents, on lance seulement
+     `bunx playwright install-deps` pour réinstaller les paquets système (eux
+     ne sont pas mis en cache, mais cette étape est rapide).
 3. **`bun run test:e2e`** — lance `playwright test` (voir
    [playwright.md](./playwright.md)). Playwright démarre lui-même `bun run dev`
    via `webServer`, donc pas d'étape de build/démarrage de serveur séparée.
+   Le serveur de dev exécute [`src/proxy.ts`](../src/proxy.ts) sur chaque
+   requête, qui a besoin de `NEXT_PUBLIC_SUPABASE_URL` et
+   `NEXT_PUBLIC_SUPABASE_ANON_KEY` pour s'initialiser (voir
+   [supabase.md](./supabase.md)) — sans ces variables, `next dev` plante au
+   démarrage. Des valeurs **placeholder** suffisent ici : les tests e2e ne
+   font pas de vrais appels Supabase, seule la présence (non vide) des
+   variables est requise.
 4. **`actions/upload-artifact@v4`** avec `if: always()` — uploade le rapport HTML
    Playwright (`playwright-report/`) même si les tests échouent, pour pouvoir
    l'inspecter depuis l'onglet "Actions" de la PR (traces, captures d'écran,
@@ -169,9 +198,6 @@ premier échec (comportement par défaut de GitHub Actions) :
 
 ## Suggestions d'ajout
 
-- **Variables d'environnement de build** : dès que Supabase/Stripe/Resend seront
-  configurés, le `next build` aura besoin de clés (même fictives/test) via
-  `env:` ou des secrets GitHub Actions — à anticiper pour ne pas casser la CI.
 - **Matrice de versions** : si besoin de tester sur plusieurs versions de Bun ou
   Node, utiliser `strategy.matrix`.
 - **Limiter le job `e2e` aux PR** : si le temps de CI devient un problème, ne

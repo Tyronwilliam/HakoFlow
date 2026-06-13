@@ -62,9 +62,13 @@ Fonctionnement automatique, **aucune commande manuelle** :
 
 - Se déclenche uniquement sur `push` vers `main` (donc après merge d'une PR
   classique).
-- Dépend directement de [husky.md](./husky.md) : si les messages de commit ne
-  suivent pas Conventional Commits, Release Please ne détecte aucun changement
-  pertinent (pas de release générée).
+- Dépend directement de [husky.md](./husky.md) : Release Please lit les types de
+  commit Conventional Commits pour décider s'il y a une release à proposer.
+  Seuls `fix:` et `feat:` (et les `BREAKING CHANGE`) déclenchent un bump de
+  version et une entrée dans `CHANGELOG.md`. Les commits `chore:`, `ci:`,
+  `docs:`, `refactor:`, `test:`, `style:` sont ignorés pour le versioning — un
+  push composé uniquement de ce type de commits ne génère **aucune** Release PR
+  (le job `release-please` reste "successful" mais ne crée rien, c'est normal).
 - Indépendant de [`ci.yml`](../.github/workflows/ci.yml) — les deux workflows
   tournent en parallèle sur `main`.
 
