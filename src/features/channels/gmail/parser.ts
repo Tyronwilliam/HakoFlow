@@ -8,10 +8,15 @@ export function parseGmailMessage(raw: GmailMessage): Message {
   return {
     id: raw.id,
     channel: "gmail",
+    externalId: raw.id,
     from: getHeader("From"),
+    fromHandle: getHeader("From"),
     subject: getHeader("Subject"),
+    content: Buffer.from(raw.payload.body.data, "base64url").toString("utf-8"),
     preview: raw.snippet,
-    receivedAt: getHeader("Date"),
+    direction: "inbound",
+    sentAt: new Date(getHeader("Date")),
     read: false,
+    attachmentUrls: [],
   };
 }

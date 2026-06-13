@@ -1,11 +1,16 @@
-import type { Channel } from "@/components/shared/channel-badge";
+import { Channel } from "../../types/shared";
 
-export type Message = {
+export interface Message {
   id: string;
   channel: Channel;
+  externalId: string;
   from: string;
-  subject: string;
-  preview: string;
-  receivedAt: string;
+  fromHandle: string;
+  subject?: string; // Gmail uniquement
+  content: string;
+  preview: string; // 60 chars max
+  direction: "inbound" | "outbound";
+  sentAt: Date;
   read: boolean;
-};
+  attachmentUrls: string[];
+}

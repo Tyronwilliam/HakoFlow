@@ -5,10 +5,14 @@ export function parseDiscordMessage(raw: DiscordMessage): Message {
   return {
     id: raw.id,
     channel: "discord",
-    from: raw.author.username,
-    subject: `#${raw.channel_id}`,
-    preview: raw.content,
-    receivedAt: raw.timestamp,
+    externalId: raw.id,
+    from: raw.author.global_name,
+    fromHandle: raw.author.username,
+    content: raw.content,
+    preview: raw.content.slice(0, 60),
+    direction: "inbound",
+    sentAt: new Date(raw.timestamp),
     read: false,
+    attachmentUrls: [],
   };
 }
