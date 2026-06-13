@@ -81,8 +81,20 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('bun.lock') }}
+
       - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: bunx playwright install --with-deps
+
+      - name: Install Playwright system dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: bunx playwright install-deps
 
       - name: Run e2e tests
         env:
@@ -135,9 +147,14 @@ premier échec (comportement par défaut de GitHub Actions) :
 ### Job `e2e`
 
 1. Checkout + setup Bun + cache (identique au job `ci`).
-2. **`bunx playwright install --with-deps`** — télécharge les navigateurs
-   (Chromium, Firefox, WebKit) et leurs dépendances système, nécessaires car les
-   runners GitHub ne les ont pas préinstallés.
+2. **`actions/cache@v4` sur `~/.cache/ms-playwright`** — met en cache les
+   binaires des navigateurs (Chromium, Firefox, WebKit, ~300 Mo), clé basée sur
+   `bun.lock` (donc invalidée si la version de `@playwright/test` change).
+   - **Cache miss** : `bunx playwright install --with-deps` télécharge les
+     navigateurs **et** leurs dépendances système (paquets apt).
+   - **Cache hit** : les navigateurs sont déjà présents, on lance seulement
+     `bunx playwright install-deps` pour réinstaller les paquets système (eux
+     ne sont pas mis en cache, mais cette étape est rapide).
 3. **`bun run test:e2e`** — lance `playwright test` (voir
    [playwright.md](./playwright.md)). Playwright démarre lui-même `bun run dev`
    via `webServer`, donc pas d'étape de build/démarrage de serveur séparée.
