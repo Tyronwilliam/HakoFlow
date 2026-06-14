@@ -9,6 +9,6 @@ export interface GmailMessage {
   snippet: string;
   payload: {
     headers: GmailHeader[];
-    body: { data: string }; // base64
+    body: { data: string; attachmentId: string }; // base64
   };
 }
