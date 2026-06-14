@@ -99,7 +99,7 @@ jobs:
       - name: Run e2e tests
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: placeholder-anon-key
         run: bun run test:e2e
 
       - name: Upload Playwright report
@@ -160,7 +160,7 @@ premier échec (comportement par défaut de GitHub Actions) :
    via `webServer`, donc pas d'étape de build/démarrage de serveur séparée.
    Le serveur de dev exécute [`src/proxy.ts`](../src/proxy.ts) sur chaque
    requête, qui a besoin de `NEXT_PUBLIC_SUPABASE_URL` et
-   `NEXT_PUBLIC_SUPABASE_ANON_KEY` pour s'initialiser (voir
+   `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` pour s'initialiser (voir
    [supabase.md](./supabase.md)) — sans ces variables, `next dev` plante au
    démarrage. Des valeurs **placeholder** suffisent ici : les tests e2e ne
    font pas de vrais appels Supabase, seule la présence (non vide) des

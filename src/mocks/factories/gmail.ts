@@ -19,7 +19,10 @@ export function createGmailMessage(overrides: Partial<GmailMessage> = {}): Gmail
         { name: "Subject", value: faker.lorem.sentence() },
         { name: "Date", value: faker.date.recent().toUTCString() },
       ],
-      body: { data: Buffer.from(faker.lorem.paragraph()).toString("base64url") },
+      body: {
+        data: Buffer.from(faker.lorem.paragraph()).toString("base64url"),
+        attachmentId: faker.database.mongodbObjectId(),
+      },
     },
     ...overrides,
   };
