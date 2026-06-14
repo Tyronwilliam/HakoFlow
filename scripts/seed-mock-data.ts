@@ -1,15 +1,24 @@
 import { mkdirSync, writeFileSync } from "fs";
 import path from "path";
-import { createGmailMessages, createMessage, createMessages } from "@/mocks";
+import { faker } from "@faker-js/faker";
+import { createGmailMessages, createMessages } from "@/mocks";
 import { createDiscordMessages } from "@/mocks";
 import { createSlackMessages } from "@/mocks";
 
 const DEFAULT_COUNT = 10;
+const DEFAULT_SEED = 1312;
 
 function getCount(flag: string): number {
   const arg = process.argv.find((value) => value.startsWith(`--${flag}=`));
   return arg ? Number(arg.split("=")[1]) : DEFAULT_COUNT;
 }
+
+function getSeed(): number {
+  const arg = process.argv.find((value) => value.startsWith("--seed="));
+  return arg ? Number(arg.split("=")[1]) : DEFAULT_SEED;
+}
+
+faker.seed(getSeed());
 
 const counts = {
   gmail: getCount("gmail"),

@@ -44,6 +44,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# mock 
-
-src/mocks/data*
+# mock
+src/mocks/data/
