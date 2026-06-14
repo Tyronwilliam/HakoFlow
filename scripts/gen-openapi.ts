@@ -27,7 +27,7 @@ if (!response.ok) {
 
 const spec = await response.json();
 
-const outDir = path.join(__dirname, "../docs/api");
+const outDir = path.join(__dirname, "../api");
 mkdirSync(outDir, { recursive: true });
 
 const outFile = path.join(outDir, "openapi.json");
