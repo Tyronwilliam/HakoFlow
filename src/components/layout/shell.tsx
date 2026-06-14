@@ -8,7 +8,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         <Sidebar />
         <section className="flex w-full flex-col">
           <Topbar />
-          <div className="border-border bg-background border-b px-3 py-2">FILTRE</div>
+          <div className="border-border border-b px-3 py-2">FILTRE</div>
           <main className="flex min-h-0 flex-1">{children}</main>
         </section>
       </section>
