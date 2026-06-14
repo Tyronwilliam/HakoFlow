@@ -211,6 +211,31 @@ bun run gen:api         # gen:types + gen:openapi
 - À régénérer après chaque nouvelle migration (`supabase/migrations/*.sql`)
   qui ajoute/modifie une table ou colonne.
 
+## Seed de données (dev)
+
+```bash
+bun run seed-supabase --email=<email-de-connexion> [--contacts=5] [--reset]
+```
+
+[`scripts/seed-supabase.ts`](../scripts/seed-supabase.ts) remplit le projet
+Supabase **lié** (pas un mock JSON) avec un scénario réaliste généré par
+`createWorkspaceScenario()` (voir [`src/mocks/factories/`](../src/mocks/factories/)) :
+contacts, `contact_channels` (avec une vraie adresse email pour le provider
+`gmail`), conversations et messages liés entre eux.
+
+- `--email` doit correspondre à un utilisateur ayant déjà fait au moins une
+  connexion via l'app (la ligne `public.users` est créée par le trigger
+  `on_auth_user_created`, voir
+  [`20260614120002_functions_and_jobs.sql`](../supabase/migrations/20260614120002_functions_and_jobs.sql)).
+  Le script crée ensuite (ou réutilise) le workspace par défaut de cet utilisateur.
+- `--reset` supprime d'abord les contacts/conversations existants de ce
+  workspace (cascade sur `contact_channels`/`messages`) avant de re-seeder.
+- Le script se connecte **directement en Postgres** (`SUPABASE_DATABASE_PASSWORD`,
+  package `postgres`) plutôt que via `@supabase/supabase-js`, car
+  `messages.content` est chiffré avec `pgp_sym_encrypt` (colonne `bytea`,
+  voir la migration `functions_and_jobs`) — ce chiffrement n'est pas
+  accessible via la lib client/REST.
+
 ## Suggestions d'ajout
 
 - **Redirection automatique** : dans `src/proxy.ts`, rediriger vers `/login` si

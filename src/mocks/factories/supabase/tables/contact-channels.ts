@@ -4,12 +4,15 @@ import type { Channel, ContactChannelRow } from "@/types";
 export function createContactChannelRow(
   overrides: Partial<ContactChannelRow> = {},
 ): ContactChannelRow {
+  const provider =
+    overrides.provider ?? faker.helpers.arrayElement<Channel>(["gmail", "discord", "slack"]);
+
   return {
     id: faker.string.uuid(),
     contact_id: faker.string.uuid(),
-    provider: faker.helpers.arrayElement<Channel>(["gmail", "discord", "slack"]),
+    provider,
     external_id: faker.string.alphanumeric(16),
-    display_handle: faker.internet.username(),
+    display_handle: provider === "gmail" ? faker.internet.email() : faker.internet.username(),
     ...overrides,
   };
 }
