@@ -46,3 +46,6 @@ next-env.d.ts
 
 # mock
 src/mocks/data/
+
+# generated openapi schema
+docs/api/
