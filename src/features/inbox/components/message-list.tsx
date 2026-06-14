@@ -1,12 +1,13 @@
 "use client";
 
-import { useMessages } from "@/features/inbox/hooks/use-messages";
+// import { useMessages } from "@/features/inbox/hooks/use-messages";
 import { ChannelBadge } from "@/components/shared/channel-badge";
 import { EmptyState } from "@/components/shared/empty-state";
-
+import data from "@/mocks/data/supabase-messages.json";
+import { MessageRow } from "@/types";
 export function MessageList() {
-  const { data: messages = [] } = useMessages();
-
+  // const { data: messages = [] } = useMessages();
+  const messages = data as MessageRow[];
   if (messages.length === 0) {
     return <EmptyState title="No messages" description="Your inbox is empty for now." />;
   }
