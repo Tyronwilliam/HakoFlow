@@ -2,6 +2,9 @@ import { faker } from "@faker-js/faker";
 import { CHANNELS_LIST } from "@/components/shared/channel-badge";
 import type { Message } from "@/types";
 
+export function createMessages(count: number): Message[] {
+  return Array.from({ length: count }, () => createMessage());
+}
 export function createMessage(overrides: Partial<Message> = {}): Message {
   return {
     id: faker.string.uuid(),
