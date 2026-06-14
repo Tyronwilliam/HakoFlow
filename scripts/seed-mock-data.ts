@@ -1,9 +1,12 @@
 import { mkdirSync, writeFileSync } from "fs";
 import path from "path";
 import { faker } from "@faker-js/faker";
-import { createGmailMessages, createMessages } from "@/mocks";
-import { createDiscordMessages } from "@/mocks";
-import { createSlackMessages } from "@/mocks";
+import {
+  createGmailMessages,
+  createSlackMessages,
+  createDiscordMessages,
+  createWorkspaceScenario,
+} from "@/mocks";
 
 const DEFAULT_COUNT = 10;
 const DEFAULT_SEED = 1312;
@@ -24,7 +27,7 @@ const counts = {
   gmail: getCount("gmail"),
   discord: getCount("discord"),
   slack: getCount("slack"),
-  supabaseMessage: getCount("slack"),
+  contacts: getCount("contacts"),
 };
 
 const outDir = path.join(__dirname, "../src/mocks/data");
@@ -34,16 +37,26 @@ mkdirSync(outDir, { recursive: true });
 const gmailMessages = createGmailMessages(counts.gmail);
 const discordMessages = createDiscordMessages(counts.discord);
 const slackMessages = createSlackMessages(counts.slack);
+const scenario = createWorkspaceScenario(faker.string.uuid(), counts.contacts);
 
-const supabaseMessages = createMessages(counts.supabaseMessage);
 writeFileSync(path.join(outDir, "gmail.json"), JSON.stringify(gmailMessages, null, 2));
 writeFileSync(path.join(outDir, "discord.json"), JSON.stringify(discordMessages, null, 2));
 writeFileSync(path.join(outDir, "slack.json"), JSON.stringify(slackMessages, null, 2));
+writeFileSync(path.join(outDir, "contacts.json"), JSON.stringify(scenario.contacts, null, 2));
+writeFileSync(
+  path.join(outDir, "contact-channels.json"),
+  JSON.stringify(scenario.contactChannels, null, 2),
+);
+writeFileSync(
+  path.join(outDir, "conversations.json"),
+  JSON.stringify(scenario.conversations, null, 2),
+);
 writeFileSync(
   path.join(outDir, "supabase-messages.json"),
-  JSON.stringify(supabaseMessages, null, 2),
+  JSON.stringify(scenario.messages, null, 2),
 );
 
 console.log(
-  `Seeded mock data: ${counts.gmail} gmail, ${counts.discord} discord, ${counts.slack} slack messages, ${counts.slack} supabase messages`,
+  `Seeded mock data: ${counts.gmail} gmail, ${counts.discord} discord, ${counts.slack} slack messages, ` +
+    `${scenario.contacts.length} contacts, ${scenario.conversations.length} conversations, ${scenario.messages.length} messages`,
 );

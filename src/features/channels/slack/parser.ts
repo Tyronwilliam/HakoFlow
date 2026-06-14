@@ -1,18 +1,18 @@
 import type { SlackMessage } from "@/features/channels/slack/types";
-import { Message } from "@/types";
+import type { MessageRow } from "@/types";
 
-export function parseSlackMessage(raw: SlackMessage): Message {
+export function parseSlackMessage(raw: SlackMessage, conversationId: string): MessageRow {
   return {
-    id: raw.ts,
+    id: crypto.randomUUID(),
+    conversation_id: conversationId,
+    external_id: raw.ts,
     channel: "slack",
-    externalId: raw.ts,
-    from: raw.user,
-    fromHandle: raw.user,
-    content: raw.text,
-    preview: raw.text.slice(0, 60),
     direction: "inbound",
-    sentAt: new Date(parseFloat(raw.ts) * 1000),
-    read: false,
-    attachmentUrls: [],
+    content: raw.text,
+    status: "delivered",
+    attachment_urls: [],
+    sent_at: new Date(parseFloat(raw.ts) * 1000).toISOString(),
+    read_at: null,
+    expires_at: null,
   };
 }

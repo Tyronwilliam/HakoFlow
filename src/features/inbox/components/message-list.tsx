@@ -17,8 +17,7 @@ export function MessageList() {
         <li key={message.id} className="flex items-center gap-3 py-3">
           <ChannelBadge channel={message.channel} />
           <div>
-            <p className="text-sm font-medium">{message.subject}</p>
-            <p className="text-muted-foreground text-sm">{message.preview}</p>
+            <p className="text-muted-foreground text-sm">{message.content}</p>
           </div>
         </li>
       ))}

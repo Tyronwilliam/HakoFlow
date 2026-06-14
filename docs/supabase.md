@@ -171,14 +171,50 @@ const supabase = createClient();
   les variables d'env `NEXT_PUBLIC_*` doivent être présentes (voir suggestion
   dans [ci.md](./ci.md)).
 
+## Types et API générés
+
+`src/types/database.types.ts` (le type `Database`) et `docs/api/openapi.json`
+sont **générés automatiquement** à partir du schéma Postgres réel — aucun type
+ni endpoint n'est écrit à la main.
+
+```bash
+bun run gen:types       # régénère database.types.ts (Database) + src/types/shared/*.ts
+bun run gen:table-types # régénère uniquement src/types/shared/*.ts depuis database.types.ts
+bun run gen:openapi     # régénère docs/api/openapi.json (schéma REST PostgREST)
+bun run gen:api         # gen:types + gen:openapi
+```
+
+- `gen:types` lance `supabase gen types typescript --linked --schema public`
+  (nécessite `bunx supabase link --project-ref <ref>`, voir
+  `bunx supabase projects list`), puis `gen:table-types`.
+- `gen:table-types` ([`scripts/gen-table-types.ts`](../scripts/gen-table-types.ts))
+  lit `database.types.ts` et écrit un fichier `XRow` par table dans
+  `src/types/shared/` (ex: `MessageRow` dans `messages.ts`), réexportés par
+  `src/types/shared/index.ts`. Les colonnes avec `DEFAULT` (toujours
+  renseignées par l'app) sont resserrées via la map `TYPE_OVERRIDES` en tête de
+  script (retire `| null`, ou pose une union littérale comme `Channel` /
+  `"dark" | "light"`). Pour ajouter une colonne resserrée, éditer
+  `TYPE_OVERRIDES` puis relancer `gen:table-types` — aucun fichier de
+  `src/types/shared/` ne doit être édité à la main, il est entièrement
+  régénéré à chaque run.
+- `gen:openapi` télécharge le schéma OpenAPI exposé par PostgREST
+  (`GET {NEXT_PUBLIC_SUPABASE_URL}/rest/v1/` avec `Accept: application/openapi+json`).
+  Cet endpoint **nécessite `SUPABASE_SERVICE_ROLE_KEY`** (la clé publishable
+  reçoit `401 Secret API key required`) — le script lit cette variable dans
+  `.env.local`, jamais exposée au client.
+- `docs/api/openapi.json` liste, pour chaque table, l'URL REST, les méthodes
+  (`GET`/`POST`/`PATCH`/`DELETE`), les paramètres de filtre/tri PostgREST et le
+  schéma JSON du payload — équivalent de la section "API Docs" de Supabase
+  Studio, mais versionnable et exploitable par des outils (ex: génération de
+  client, Postman/Insomnia).
+- À régénérer après chaque nouvelle migration (`supabase/migrations/*.sql`)
+  qui ajoute/modifie une table ou colonne.
+
 ## Suggestions d'ajout
 
 - **Redirection automatique** : dans `src/proxy.ts`, rediriger vers `/login` si
   `supabase.auth.getUser()` ne retourne pas d'utilisateur sur les routes
   protégées (ex: `/dashboard/*`), plutôt que de gérer ça page par page.
-- **Types générés** : utiliser `supabase gen types typescript` (CLI déjà
-  installée en devDependency) pour générer `src/lib/supabase/database.types.ts`
-  à partir du schéma réel, et typer `createClient<Database>(...)`.
 - **Tests** : mocker `@supabase/ssr` avec MSW ou des mocks Vitest pour tester les
   Server Actions sans appeler le vrai Supabase (voir [vitest.md](./vitest.md)).
 - **Secrets Vercel** : ajouter `NEXT_PUBLIC_SUPABASE_URL`,
