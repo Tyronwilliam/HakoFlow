@@ -15,6 +15,8 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "supabase/functions/**",
+    "src/mocks/handlers/**",
+    "src/mocks/data/**",
   ]),
 ]);
 
