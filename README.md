@@ -35,16 +35,18 @@ hakoflow/
 
 ## Outils documentés
 
-| Outil               | Rôle                                                 | Doc                                           |
-| ------------------- | ---------------------------------------------------- | --------------------------------------------- |
-| ESLint              | Analyse statique / qualité du code                   | [eslint.md](./docs/eslint.md)                 |
-| Prettier            | Formatage automatique du code                        | [prettier.md](./docs/prettier.md)             |
-| Vitest              | Tests unitaires & composants (React Testing Library) | [vitest.md](./docs/vitest.md)                 |
-| Playwright          | Tests end-to-end (navigateur)                        | [playwright.md](./docs/playwright.md)         |
-| Husky + Commitlint  | Git hooks & validation des messages de commit        | [husky.md](./docs/husky.md)                   |
-| Release Please      | Versioning & changelog automatisés                   | [release-please.md](./docs/release-please.md) |
-| CI (GitHub Actions) | Pipeline de vérification automatique                 | [ci.md](./docs/ci.md)                         |
-| Supabase            | Base de données, auth, session (clients + proxy)     | [supabase.md](./docs/supabase.md)             |
+| Outil                 | Rôle                                                 | Doc                                                         |
+| --------------------- | ---------------------------------------------------- | ----------------------------------------------------------- |
+| ESLint                | Analyse statique / qualité du code                   | [eslint.md](./docs/eslint.md)                               |
+| Prettier              | Formatage automatique du code                        | [prettier.md](./docs/prettier.md)                           |
+| Vitest                | Tests unitaires & composants (React Testing Library) | [vitest.md](./docs/vitest.md)                               |
+| Playwright            | Tests end-to-end (navigateur)                        | [playwright.md](./docs/playwright.md)                       |
+| Husky + Commitlint    | Git hooks & validation des messages de commit        | [husky.md](./docs/husky.md)                                 |
+| Release Please        | Versioning & changelog automatisés                   | [release-please.md](./docs/release-please.md)               |
+| CI (GitHub Actions)   | Pipeline de vérification automatique                 | [ci.md](./docs/ci.md)                                       |
+| Supabase              | Base de données, auth, session (clients + proxy)     | [supabase.md](./docs/supabase.md)                           |
+| Architecture features | Patterns adapters/validators/api.ts/QueryBoundary    | [architecture-patterns.md](./docs/architecture-patterns.md) |
+| Thème (light/dark)    | Variables de couleur à utiliser par composant        | [theme.md](./docs/theme.md)                                 |
 
 ## Stack globale (rappel)
 
