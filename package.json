@@ -14,6 +14,10 @@
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
     "seed-mock-data": "bun run scripts/seed-mock-data.ts",
+    "gen:types": "bunx supabase gen types typescript --linked --schema public > src/types/database.types.ts && bun run gen:table-types",
+    "gen:table-types": "bun run scripts/gen-table-types.ts",
+    "gen:openapi": "bun run scripts/gen-openapi.ts",
+    "gen:api": "bun run gen:types && bun run gen:openapi",
     "prepare": "husky"
   },
   "lint-staged": {

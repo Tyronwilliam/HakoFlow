@@ -1,3 +1,4 @@
+// @ts-nocheck -- fixtures générées par `bun run seed-mock-data`, non typées et non commitées
 import { http, HttpResponse } from "msw";
 import slackMessages from "@/mocks/data/slack.json";
 

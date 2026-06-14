@@ -1,22 +1,21 @@
 import type { GmailMessage } from "@/features/channels/gmail/types";
-import { Message } from "@/types/index";
+import type { MessageRow } from "@/types";
 
-export function parseGmailMessage(raw: GmailMessage): Message {
+export function parseGmailMessage(raw: GmailMessage, conversationId: string): MessageRow {
   const getHeader = (name: string) =>
     raw.payload.headers.find((header) => header.name === name)?.value ?? "";
 
   return {
-    id: raw.id,
+    id: crypto.randomUUID(),
+    conversation_id: conversationId,
+    external_id: raw.id,
     channel: "gmail",
-    externalId: raw.id,
-    from: getHeader("From"),
-    fromHandle: getHeader("From"),
-    subject: getHeader("Subject"),
-    content: Buffer.from(raw.payload.body.data, "base64url").toString("utf-8"),
-    preview: raw.snippet,
     direction: "inbound",
-    sentAt: new Date(getHeader("Date")),
-    read: false,
-    attachmentUrls: [],
+    content: Buffer.from(raw.payload.body.data, "base64url").toString("utf-8"),
+    status: "delivered",
+    attachment_urls: [],
+    sent_at: new Date(getHeader("Date")).toISOString(),
+    read_at: null,
+    expires_at: null,
   };
 }

@@ -1,2 +1,11 @@
 export type { Channel } from "./channels";
-export type { Message } from "./message";
+export type { AiSuggestionRow } from "./ai-suggestions";
+export type { ConnectedAccountRow } from "./connected-accounts";
+export type { ContactChannelRow } from "./contact-channels";
+export type { ContactRow } from "./contacts";
+export type { ConversationRow } from "./conversations";
+export type { MessageRow } from "./messages";
+export type { ReminderRow } from "./reminders";
+export type { UserRow } from "./users";
+export type { WhitelistRow } from "./whitelist";
+export type { WorkspaceRow } from "./workspaces";

@@ -1,18 +1,18 @@
 import type { DiscordMessage } from "@/features/channels/discord/types";
-import { Message } from "@/types";
+import type { MessageRow } from "@/types";
 
-export function parseDiscordMessage(raw: DiscordMessage): Message {
+export function parseDiscordMessage(raw: DiscordMessage, conversationId: string): MessageRow {
   return {
-    id: raw.id,
+    id: crypto.randomUUID(),
+    conversation_id: conversationId,
+    external_id: raw.id,
     channel: "discord",
-    externalId: raw.id,
-    from: raw.author.global_name,
-    fromHandle: raw.author.username,
-    content: raw.content,
-    preview: raw.content.slice(0, 60),
     direction: "inbound",
-    sentAt: new Date(raw.timestamp),
-    read: false,
-    attachmentUrls: [],
+    content: raw.content,
+    status: "delivered",
+    attachment_urls: [],
+    sent_at: new Date(raw.timestamp).toISOString(),
+    read_at: null,
+    expires_at: null,
   };
 }
