@@ -62,13 +62,49 @@ Convention : un fichier `*.test.tsx` (ou `*.test.ts`) à côté du fichier test�
 - **Pas** branché sur le hook `pre-commit` actuellement (seul `lint` y est) — voir
   [husky.md](./husky.md) pour la discussion lint-staged / tests rapides.
 
+## Mocks (`src/mocks/`)
+
+Le dossier [`src/mocks/`](../src/mocks/) centralise les mocks réseau (MSW) et les
+factories de données utilisées en tests et en seed local :
+
+```
+src/mocks/
+├── data/        # JSON générés par seed-mock-data (gitignoré, non commité)
+├── factories/
+│   ├── channels/    # createSlackMessage, createGmailMessages, createDiscordMessages...
+│   └── supabase/
+│       ├── tables/      # un factory par table (createContactRow, createMessageRow...)
+│       └── scenario.ts  # createWorkspaceScenario() — génère un scénario cohérent
+│                         # (contacts + contact_channels + conversations + messages liés)
+├── handlers/    # handlers MSW (http.get/post) pour Slack, Discord, Gmail
+└── index.ts     # réexporte factories + handlers
+```
+
+- `bun run seed-mock-data` (script [`scripts/seed-mock-data.ts`](../scripts/seed-mock-data.ts))
+  utilise les factories pour générer les fichiers JSON dans `src/mocks/data/`
+  (seed fixe par défaut `1312` pour des données reproductibles, voir `--seed=`).
+- Les handlers ([`src/mocks/handlers/`](../src/mocks/handlers/)) lisent ces JSON et
+  interceptent les appels aux API Slack/Discord/Gmail (`@ts-nocheck` car les
+  fixtures générées ne sont pas typées).
+- `src/mocks/data/` est gitignoré : chaque dev (ou la CI) régénère ses propres
+  fixtures via `seed-mock-data` avant de lancer les tests qui en dépendent.
+
+> ⚠️ Les handlers MSW (`src/mocks/handlers/index.ts`) ne sont **pas encore branchés**
+> sur `setupServer()` dans [`vitest.setup.ts`](../vitest.setup.ts) — voir
+> "Suggestions d'ajout".
+
 ## Suggestions d'ajout
 
 - **Coverage** : ajouter `@vitest/coverage-v8` et un script `test:coverage`, avec
   un seuil minimal (ex: 70%) vérifié en CI.
-- **MSW handlers partagés** : créer `src/mocks/handlers.ts` + `src/mocks/server.ts`
-  pour centraliser les mocks Supabase/Stripe/Resend et les réutiliser dans tous les
-  tests via `setupFiles`.
+- **Brancher les handlers MSW** : appeler `setupServer(...handlers)` dans
+  `vitest.setup.ts` (avec `beforeAll(() => server.listen())`,
+  `afterEach(() => server.resetHandlers())`, `afterAll(() => server.close())`) pour
+  que les handlers de `src/mocks/handlers/` interceptent réellement les appels
+  réseau pendant les tests.
+- **Handlers Supabase/Stripe/Resend** : `src/mocks/factories/supabase/` génère déjà
+  des données de scénario (`createWorkspaceScenario`), mais il n'y a pas encore de
+  handlers MSW pour `@supabase/ssr`, Stripe ou Resend.
 - **Tests des Server Actions `next-safe-action`** : ajouter un dossier
   `src/actions/__tests__` pour valider que les schémas Zod rejettent bien les
   payloads invalides (utile pour les webhooks Discord/Slack/Gmail mentionnés dans

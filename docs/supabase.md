@@ -173,14 +173,14 @@ const supabase = createClient();
 
 ## Types et API générés
 
-`src/types/database.types.ts` (le type `Database`) et `docs/api/openapi.json`
+`src/types/database.types.ts` (le type `Database`) et `api/openapi.json`
 sont **générés automatiquement** à partir du schéma Postgres réel — aucun type
 ni endpoint n'est écrit à la main.
 
 ```bash
 bun run gen:types       # régénère database.types.ts (Database) + src/types/shared/*.ts
 bun run gen:table-types # régénère uniquement src/types/shared/*.ts depuis database.types.ts
-bun run gen:openapi     # régénère docs/api/openapi.json (schéma REST PostgREST)
+bun run gen:openapi     # régénère api/openapi.json (schéma REST PostgREST)
 bun run gen:api         # gen:types + gen:openapi
 ```
 
@@ -202,11 +202,12 @@ bun run gen:api         # gen:types + gen:openapi
   Cet endpoint **nécessite `SUPABASE_SERVICE_ROLE_KEY`** (la clé publishable
   reçoit `401 Secret API key required`) — le script lit cette variable dans
   `.env.local`, jamais exposée au client.
-- `docs/api/openapi.json` liste, pour chaque table, l'URL REST, les méthodes
+- `api/openapi.json` liste, pour chaque table, l'URL REST, les méthodes
   (`GET`/`POST`/`PATCH`/`DELETE`), les paramètres de filtre/tri PostgREST et le
   schéma JSON du payload — équivalent de la section "API Docs" de Supabase
   Studio, mais versionnable et exploitable par des outils (ex: génération de
-  client, Postman/Insomnia).
+  client, Postman/Insomnia). Ce fichier est **généré, non commité**
+  (voir `.gitignore`).
 - À régénérer après chaque nouvelle migration (`supabase/migrations/*.sql`)
   qui ajoute/modifie une table ou colonne.
 
