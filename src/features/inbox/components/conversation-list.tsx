@@ -3,10 +3,13 @@
 import { useConversations } from "@/features/inbox/hooks/use-conversations";
 import { ChannelBadge } from "@/components/shared/channel-badge";
 import { QueryBoundary } from "@/components/shared/query-boundary";
+import { GraySpan } from "@/components/shared/Text/GraySpan";
+import { PreviewText } from "@/components/shared/Text/PreviewText";
+import { Name } from "@/components/shared/Text/Name";
 
 export function ConversationList() {
   const { data: conversations = [], isLoading, error } = useConversations();
-  // Faire une substring sur les conversation venant des API Channel
+  // Faire une substring sur les conversation venant des API Channel 60 caractere
   return (
     <QueryBoundary
       isLoading={isLoading}
@@ -16,28 +19,22 @@ export function ConversationList() {
     >
       <ul className="divide-y">
         {conversations.map((conversation) => (
-          <li
+          <button
+            className="hover:bg-secondary/40 relative flex w-full items-center gap-3 px-4 py-3 text-left transition-colors"
             key={conversation.id}
-            className="hover:bg-secondary/40 relative flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-colors"
           >
-            <div>
-              <p className="text-foreground truncate text-[14px] font-semibold">
-                {conversation.contactName}
-              </p>
+            <li className="flex cursor-pointer flex-col gap-1 text-left">
+              <Name content={conversation.contactName} />
 
               {conversation.contactHandle && (
                 <span className="mt-0.5 flex items-center gap-2 text-[12px]">
                   <ChannelBadge channel={conversation.channel} />
-                  <span className="text-muted-foreground/80 truncate text-[12px]">
-                    {conversation.contactHandle}
-                  </span>
+                  <GraySpan>{conversation.contactHandle}</GraySpan>
                 </span>
               )}
-              <p className="text-foreground/80 mt-1.5 line-clamp-2 text-[13px] leading-relaxed">
-                {conversation.lastMessagePreview}
-              </p>
-            </div>
-          </li>
+              <PreviewText>{conversation.lastMessagePreview}</PreviewText>
+            </li>
+          </button>
         ))}
       </ul>
     </QueryBoundary>
