@@ -10,6 +10,8 @@ import { Name } from "@/components/shared/Text/Name";
 export function ConversationList() {
   const { data: conversations = [], isLoading, error } = useConversations();
   // Faire une substring sur les conversation venant des API Channel 60 caractere
+  // Composant liste à faire
+  // Check si button dans li ou li dans button
   return (
     <QueryBoundary
       isLoading={isLoading}

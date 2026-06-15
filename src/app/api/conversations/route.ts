@@ -2,10 +2,17 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { toConversationListItem } from "@/features/inbox/adapters";
 
-export async function GET() {
+const DEFAULT_STOP_INDEX = 20;
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const startIndex = Number(searchParams.get("startIndex") ?? 0);
+  const stopIndex = Number(searchParams.get("stopIndex") ?? DEFAULT_STOP_INDEX);
+
   const supabase = await createClient();
 
   const { data: auth } = await supabase.auth.getUser();
+
   if (!auth.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -37,7 +44,8 @@ export async function GET() {
     )
     .eq("workspace_id", workspace.id)
     .eq("is_archived", false)
-    .order("last_message_at", { ascending: false });
+    .order("last_message_at", { ascending: false })
+    .range(startIndex, stopIndex);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
