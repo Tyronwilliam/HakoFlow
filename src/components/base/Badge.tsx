@@ -1,19 +1,19 @@
 import { Badge as BadgeRoot } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
-export function Badge({
-  content,
-  ...props
-}: {
+interface BadgeProps extends React.ComponentProps<typeof BadgeRoot> {
   content: string;
-  className: string;
-  bubbleStyle: string;
-}) {
+  colorDot: string;
+}
+
+export function Badge({ content, colorDot, className, ...props }: BadgeProps) {
   return (
     <BadgeRoot
       variant="secondary"
-      className={`${props.className} flex items-center gap-1.5 rounded-md text-[12px]`}
+      className={cn("flex items-center gap-1.5 rounded-md text-[12px]", className)}
+      {...props}
     >
-      <span className={`h-1.5 w-1.5 rounded-full ${props.bubbleStyle}`}></span>
+      <span className={cn("h-1.5 w-1.5 rounded-full", colorDot)}></span>
       {content}
     </BadgeRoot>
   );

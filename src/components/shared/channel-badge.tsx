@@ -21,7 +21,7 @@ const CHANNEL_COLORS_BUBBLE: Record<ChannelType, string> = {
 export function ChannelBadge({ channel }: { channel: ChannelType }) {
   return (
     <Badge
-      bubbleStyle={CHANNEL_COLORS_BUBBLE[channel]}
+      colorDot={CHANNEL_COLORS_BUBBLE[channel]}
       className={CHANNEL_COLORS[channel]}
       content={CHANNELS_LIST[channel]}
     />
