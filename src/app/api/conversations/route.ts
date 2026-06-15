@@ -44,8 +44,8 @@ export async function GET(request: Request) {
     )
     .eq("workspace_id", workspace.id)
     .eq("is_archived", false)
-    .order("last_message_at", { ascending: false })
-    .range(startIndex, stopIndex);
+    .range(startIndex, stopIndex)
+    .order("last_message_at", { ascending: false });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
