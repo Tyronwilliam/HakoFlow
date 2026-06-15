@@ -17,13 +17,16 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { data: workspace } = await supabase
+  const { data: workspace, error: workspaceError } = await supabase
     .from("workspaces")
     .select("id")
     .eq("user_id", auth.user.id)
     .eq("is_default", true)
     .single();
 
+  if (workspaceError) {
+    return NextResponse.json({ error: workspaceError.message }, { status: 500 });
+  }
   if (!workspace) {
     return NextResponse.json({ conversations: [] });
   }
