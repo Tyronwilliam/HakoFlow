@@ -17,6 +17,7 @@ export function QueryBoundary({ isLoading, isEmpty, scope, children, error }: Qu
   if (isEmpty && !error) {
     return <EmptyState title={"No data"} description={`Your ${scope} is empty for now.`} />;
   }
+
   if (error) {
     return <ErrorState title={"Unexpected error"} description={error.message} />;
   }

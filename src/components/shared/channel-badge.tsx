@@ -1,5 +1,5 @@
-import { Badge } from "@/components/ui/badge";
 import { type Channel as ChannelType } from "@/types";
+import { Badge } from "../base/Badge";
 
 export const CHANNELS_LIST = {
   gmail: "Gmail",
@@ -21,11 +21,9 @@ const CHANNEL_COLORS_BUBBLE: Record<ChannelType, string> = {
 export function ChannelBadge({ channel }: { channel: ChannelType }) {
   return (
     <Badge
-      variant="secondary"
-      className={`${CHANNEL_COLORS[channel]} mt-0.5 flex items-center gap-2 rounded-md text-[12px]`}
-    >
-      <span className={`h-1.5 w-1.5 rounded-full ${CHANNEL_COLORS_BUBBLE[channel]}`}></span>
-      {CHANNELS_LIST[channel]}
-    </Badge>
+      colorDot={CHANNEL_COLORS_BUBBLE[channel]}
+      className={CHANNEL_COLORS[channel]}
+      content={CHANNELS_LIST[channel]}
+    />
   );
 }

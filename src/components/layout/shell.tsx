@@ -3,15 +3,15 @@ import { Topbar } from "@/components/layout/topbar";
 
 export function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-screen flex-col">
-      <div className="flex h-full">
+    <section className="flex h-screen flex-col">
+      <section className="flex h-full">
         <Sidebar />
         <section className="flex w-full flex-col">
           <Topbar />
-          <div className="border-border bg-background border-b px-3 py-2">FILTRE</div>
-          <main className="flex-1 overflow-hidden">{children}</main>
+          <div className="border-border border-b px-3 py-2">FILTRE</div>
+          <main className="flex min-h-0 flex-1">{children}</main>
         </section>
-      </div>
-    </div>
+      </section>
+    </section>
   );
 }

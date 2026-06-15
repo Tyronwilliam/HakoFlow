@@ -1,3 +1,4 @@
 export const inboxApi = {
-  conversations: "/api/conversations",
+  conversations: (startIndex: number, stopIndex: number) =>
+    `/api/conversations?startIndex=${startIndex}&stopIndex=${stopIndex}`,
 } as const;
