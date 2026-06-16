@@ -4,6 +4,7 @@ import { GraySpan } from "@/components/shared/Text/GraySpan";
 import { PreviewText } from "@/components/shared/Text/PreviewText";
 import { Name } from "@/components/shared/Text/Name";
 import { formatDate } from "@/lib/date";
+import { useUpdateConversation } from "../hooks/use-conversations";
 
 interface ConversationListItemProps {
   conversation: ConversationListItemType;
@@ -11,8 +12,18 @@ interface ConversationListItemProps {
 
 export function ConversationListItem({ conversation }: ConversationListItemProps) {
   const isUnread = conversation.unreadCount > 0;
+  const { mutate: updateConversation } = useUpdateConversation();
+
+  const resetUnreadCount = () => {
+    if (conversation.unreadCount > 0) {
+      updateConversation({ id: conversation.id });
+    }
+  };
   return (
-    <button className="hover:bg-secondary/40 relative flex w-full items-center gap-3 px-4 py-3 text-left transition-colors">
+    <button
+      onClick={resetUnreadCount}
+      className="hover:bg-secondary/40 relative flex w-full items-center gap-3 px-4 py-3 text-left transition-colors"
+    >
       {isUnread && (
         <span className="absolute top-1/2 right-4 h-2 w-2 -translate-y-1/2 rounded-full bg-red-700"></span>
       )}
