@@ -1,14 +1,17 @@
+"use client";
 import { ConversationListItem as ConversationListItemType } from "@/features/inbox/adapters";
 import { ChannelBadge } from "@/components/shared/channel-badge";
 import { Paragraph } from "@/components/shared/Text/Paragraph";
 import { formatDate } from "@/lib/date";
 import { useUpdateConversation } from "../hooks/use-conversations";
+import { useRouter } from "next/navigation";
 
 interface ConversationListItemProps {
   conversation: ConversationListItemType;
 }
 
 export function ConversationListItem({ conversation }: ConversationListItemProps) {
+  const router = useRouter();
   const { mutate: updateConversation } = useUpdateConversation();
   const isUnread = conversation.unreadCount > 0;
 
@@ -17,12 +20,16 @@ export function ConversationListItem({ conversation }: ConversationListItemProps
       updateConversation({ id: conversation.id });
     }
   };
+  const openThread = () => {
+    resetUnreadCount();
+    router.push(`/inbox/${conversation.id}`);
+  };
 
   return (
     <li className="hover:bg-secondary/40 relative flex w-full items-center gap-3 text-left transition-colors">
       <button
         className="flex w-full cursor-pointer flex-col gap-1 px-4 py-3 text-left"
-        onClick={resetUnreadCount}
+        onClick={openThread}
         aria-label="open-conversation"
       >
         {isUnread && (
