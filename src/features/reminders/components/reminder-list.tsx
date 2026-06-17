@@ -1,7 +1,7 @@
 "use client";
 
 import { useReminders } from "@/features/reminders/hooks/use-reminders";
-import { EmptyState } from "@/components/shared/empty-state";
+import { EmptyState } from "@/components/shared/Boundaries/empty-state";
 
 export function ReminderList() {
   const { data: reminders = [] } = useReminders();

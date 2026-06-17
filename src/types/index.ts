@@ -1,5 +1,5 @@
 export type {
-  Channel,
+  ChannelListType,
   UserRow,
   WorkspaceRow,
   ConnectedAccountRow,

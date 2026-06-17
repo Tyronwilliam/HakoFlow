@@ -1,4 +1,4 @@
-export type { Channel } from "./channels";
+export type { ChannelListType } from "./channels";
 export type { AiSuggestionRow } from "./ai-suggestions";
 export type { ConnectedAccountRow } from "./connected-accounts";
 export type { ContactChannelRow } from "./contact-channels";

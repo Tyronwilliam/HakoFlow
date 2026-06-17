@@ -1,4 +1,4 @@
-import { EmptyState } from "@/components/shared/empty-state";
+import { EmptyState } from "./empty-state";
 import { ErrorState } from "./error-state";
 
 interface QueryBoundaryProps {

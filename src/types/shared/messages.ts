@@ -1,8 +1,8 @@
-import type { Channel } from "./channels";
+import type { ChannelListType } from "./channels";
 
 export interface MessageRow {
   attachment_urls: string[];
-  channel: Channel;
+  channel: ChannelListType;
   content: string;
   conversation_id: string;
   direction: "inbound" | "outbound";

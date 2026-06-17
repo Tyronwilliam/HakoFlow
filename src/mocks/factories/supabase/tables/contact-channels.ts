@@ -1,11 +1,12 @@
 import { faker } from "@faker-js/faker";
-import type { Channel, ContactChannelRow } from "@/types";
+import type { ChannelListType, ContactChannelRow } from "@/types";
 
 export function createContactChannelRow(
   overrides: Partial<ContactChannelRow> = {},
 ): ContactChannelRow {
   const provider =
-    overrides.provider ?? faker.helpers.arrayElement<Channel>(["gmail", "discord", "slack"]);
+    overrides.provider ??
+    faker.helpers.arrayElement<ChannelListType>(["gmail", "discord", "slack"]);
 
   return {
     id: faker.string.uuid(),

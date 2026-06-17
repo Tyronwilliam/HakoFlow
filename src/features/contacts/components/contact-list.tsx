@@ -1,7 +1,7 @@
 "use client";
 
 import { useContacts } from "@/features/contacts/hooks/use-contacts";
-import { EmptyState } from "@/components/shared/empty-state";
+import { EmptyState } from "../../../components/shared/Boundaries/empty-state";
 
 export function ContactList() {
   const { data: contacts = [] } = useContacts();
