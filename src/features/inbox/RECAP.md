@@ -2,28 +2,6 @@
 
 Checklist des points à traiter, par ordre d'impact.
 
-## 1. HTML invalide dans `ConversationListItem`
-
-`<button><li>...</li></button>` n'est pas valide : un `<li>` doit être enfant
-direct d'un `<ul>`/`<ol>`. Inverser la structure :
-
-```tsx
-<li>
-  <button className="w-full ...">...</button>
-</li>
-```
-
-## 2. Aucune interaction sur les items
-
-Le `<button>` ne fait rien. À décider :
-
-- soit `<Link href={`/inbox/${conversation.id}`}>` si chaque conversation a sa route,
-- soit `onClick={() => onSelect(conversation.id)}` avec l'état de sélection géré
-  dans `ConversationList` (ou dans l'URL via un search param).
-
-Ajouter aussi un `aria-label` descriptif sur le bouton (le contenu visuel seul
-ne décrit pas l'action "ouvrir la conversation avec X").
-
 ## 3. Gestion d'erreur pendant le scroll infini
 
 `useConversations` expose `error` mais seulement pour le premier chargement
@@ -66,14 +44,10 @@ Le front envoie toujours `startIndex`/`stopIndex` donc ça ne casse rien, mais
 les deux valeurs devraient être alignées (ou la constante factorisée dans
 `inboxApi`).
 
-## 9. `useMessages` à harmoniser
-
-`use-messages.ts` utilise `fetch` brut (`/api/messages`) sans passer par
-`fetchApi`/`inboxApi`, et sans validation Zod — contrairement à
-`use-conversations.ts`. À harmoniser une fois la feature messages développée.
-
 ## 10. Erreur Supabase silencieuse sur le fetch workspace
 
 Dans `route.ts`, seule l'absence de workspace (`!workspace`) est gérée ; une
 éventuelle erreur Supabase sur ce `select` n'est pas vérifiée (contrairement
 au `select` des conversations qui vérifie `error`). OK
+
+## 11 Documenter nouveau pattern API - Queries

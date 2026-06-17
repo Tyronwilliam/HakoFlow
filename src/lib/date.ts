@@ -1,4 +1,5 @@
-import { format, formatDistanceToNow, isToday } from "date-fns";
+import { format, isThisYear, isToday } from "date-fns";
+import { fr } from "date-fns/locale";
 
 export const formatDate = (date: string | null) => {
   if (!date) return null;
@@ -9,5 +10,9 @@ export const formatDate = (date: string | null) => {
     return format(parsedDate, "HH:mm");
   }
 
-  return formatDistanceToNow(parsedDate, { addSuffix: true });
+  if (isThisYear(parsedDate)) {
+    return format(parsedDate, "d MMMM", { locale: fr });
+  }
+
+  return format(parsedDate, "dd/MM/yyyy");
 };

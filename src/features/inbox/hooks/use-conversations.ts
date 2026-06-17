@@ -1,35 +1,60 @@
 "use client";
 
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { inboxApi } from "@/features/inbox/api";
-import { conversationListItemSchema, RawConversationRow } from "@/features/inbox/adapters";
-import { fetchApi } from "@/lib/api";
+import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import type { UseInfiniteQueryOptions, MutationOptions } from "@tanstack/react-query";
+import {
+  conversationsQueryOptions,
+  conversationsQueryKey,
+  conversationUpdateMutation,
+} from "@/features/inbox/queries";
+import type { ConversationListItem } from "@/features/inbox/adapters";
+import { conversationListItemSchema } from "@/features/inbox/adapters";
+import { parseApiResponse } from "@/lib/api";
 
-type ConversationsApiResponse = {
-  conversations: RawConversationRow[];
+type ConversationPage = Awaited<
+  ReturnType<ReturnType<typeof conversationsQueryOptions>["queryFn"]>
+>;
+
+type ListConversationsOptions = Partial<
+  UseInfiniteQueryOptions<
+    ConversationPage,
+    Error,
+    ConversationListItem[],
+    ReturnType<typeof conversationsQueryKey>,
+    number
+  >
+>;
+
+export const useListConversations = (options?: ListConversationsOptions) => {
+  return useInfiniteQuery({
+    ...conversationsQueryOptions(),
+    ...options,
+    select: (data) =>
+      parseApiResponse({
+        schema: conversationListItemSchema.array(),
+        data: data.pages.flatMap((p: ConversationPage) => p.conversations),
+        context: "conversations.list",
+      }),
+  });
 };
 
-const PAGE_SIZE = 20;
+type UpdateConversationOptions = Partial<
+  MutationOptions<
+    unknown,
+    Error,
+    Parameters<ReturnType<typeof conversationUpdateMutation>["mutationFn"]>[0]
+  >
+>;
 
-export function useConversations() {
-  return useInfiniteQuery({
-    queryKey: ["conversations"],
-    queryFn: async ({ pageParam }) => {
-      const startIndex = pageParam;
-      const stopIndex = startIndex + PAGE_SIZE - 1;
+export const useUpdateConversation = (options?: UpdateConversationOptions) => {
+  const queryClient = useQueryClient();
 
-      const data = await fetchApi<ConversationsApiResponse>(
-        inboxApi.conversations(startIndex, stopIndex),
-      );
-
-      const conversations = conversationListItemSchema.array().parse(data.conversations);
-
-      return {
-        conversations,
-        nextCursor: conversations.length === PAGE_SIZE ? startIndex + PAGE_SIZE : null,
-      };
+  return useMutation({
+    ...conversationUpdateMutation(),
+    ...options,
+    onSuccess: (...args) => {
+      queryClient.invalidateQueries({ queryKey: conversationsQueryKey() });
+      options?.onSuccess?.(...args);
     },
-    initialPageParam: 0,
-    getNextPageParam: (lastPage) => lastPage.nextCursor,
   });
-}
+};
