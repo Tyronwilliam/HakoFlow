@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import type { Channel, ConnectedAccountRow } from "@/types";
+import type { ChannelListType, ConnectedAccountRow } from "@/types";
 
 export function createConnectedAccountRow(
   overrides: Partial<ConnectedAccountRow> = {},
@@ -7,7 +7,7 @@ export function createConnectedAccountRow(
   return {
     id: faker.string.uuid(),
     workspace_id: faker.string.uuid(),
-    provider: faker.helpers.arrayElement<Channel>(["gmail", "discord", "slack"]),
+    provider: faker.helpers.arrayElement<ChannelListType>(["gmail", "discord", "slack"]),
     external_id: faker.string.alphanumeric(16),
     account_label: faker.internet.email(),
     access_token: faker.string.alphanumeric(32),

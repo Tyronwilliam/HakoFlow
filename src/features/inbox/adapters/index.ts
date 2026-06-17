@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Channel } from "@/types";
+import type { ChannelListType } from "@/types";
 
 export interface RawConversationRow {
   id: string;
@@ -22,7 +22,7 @@ export function toConversationListItem(raw: RawConversationRow): ConversationLis
 
   return {
     id: raw.id,
-    channel: raw.primary_channel as Channel,
+    channel: raw.primary_channel as ChannelListType,
     contactName: raw.contacts?.name ?? "Inconnu",
     contactHandle: contactChannel?.display_handle ?? null,
     lastMessageAt: raw.last_message_at,

@@ -1,8 +1,6 @@
 import { ConversationListItem as ConversationListItemType } from "@/features/inbox/adapters";
 import { ChannelBadge } from "@/components/shared/channel-badge";
-import { GraySpan } from "@/components/shared/Text/GraySpan";
-import { PreviewText } from "@/components/shared/Text/PreviewText";
-import { Name } from "@/components/shared/Text/Name";
+import { Paragraph } from "@/components/shared/Text/Paragraph";
 import { formatDate } from "@/lib/date";
 import { useUpdateConversation } from "../hooks/use-conversations";
 
@@ -11,14 +9,15 @@ interface ConversationListItemProps {
 }
 
 export function ConversationListItem({ conversation }: ConversationListItemProps) {
-  const isUnread = conversation.unreadCount > 0;
   const { mutate: updateConversation } = useUpdateConversation();
+  const isUnread = conversation.unreadCount > 0;
 
   const resetUnreadCount = () => {
     if (conversation.unreadCount > 0) {
       updateConversation({ id: conversation.id });
     }
   };
+
   return (
     <li className="hover:bg-secondary/40 relative flex w-full items-center gap-3 text-left transition-colors">
       <button
@@ -31,10 +30,9 @@ export function ConversationListItem({ conversation }: ConversationListItemProps
         )}
 
         <div className="flex items-center justify-between">
-          <Name
-            content={conversation.contactName}
-            className={isUnread ? "font-semibold" : "text-foreground/90"}
-          />
+          <Paragraph type="regular" className={isUnread ? "font-semibold" : "text-foreground/90"}>
+            {conversation.contactName}
+          </Paragraph>
           <span className="text-muted-foreground ml-auto shrink-0 text-[11px]">
             {formatDate(conversation.lastMessageAt)}
           </span>
@@ -42,10 +40,12 @@ export function ConversationListItem({ conversation }: ConversationListItemProps
         {conversation.contactHandle && (
           <span className="mt-0.5 flex items-center gap-2 text-[12px]">
             <ChannelBadge channel={conversation.channel} />
-            <GraySpan>{conversation.contactHandle}</GraySpan>
+            <span className="text-muted-foreground/80 truncate text-[12px]">
+              {conversation.contactHandle}
+            </span>
           </span>
         )}
-        <PreviewText>{conversation.lastMessagePreview}</PreviewText>
+        <Paragraph type="light">{conversation.lastMessagePreview}</Paragraph>
       </button>
     </li>
   );

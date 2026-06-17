@@ -1,8 +1,8 @@
-import type { Channel } from "./channels";
+import type { ChannelListType } from "./channels";
 
 export interface ConversationRow {
   id: string;
-  primary_channel: Channel;
+  primary_channel: ChannelListType;
   contact_id: string | null;
   created_at: string;
   external_id: string | null;

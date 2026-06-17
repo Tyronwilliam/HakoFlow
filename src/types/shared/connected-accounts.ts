@@ -1,4 +1,4 @@
-import type { Channel } from "./channels";
+import type { ChannelListType } from "./channels";
 
 export interface ConnectedAccountRow {
   access_token: string | null;
@@ -7,7 +7,7 @@ export interface ConnectedAccountRow {
   expires_at: string | null;
   external_id: string;
   id: string;
-  provider: Channel;
+  provider: ChannelListType;
   refresh_token: string | null;
   status: "connected" | "disconnected" | "error";
   workspace_id: string;

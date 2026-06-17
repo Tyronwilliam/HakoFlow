@@ -1,3 +1,3 @@
-import { CHANNELS_LIST } from "../../components/shared/channel-badge";
+import { CHANNELS_LIST } from "../../lib/constant/channels";
 
-export type Channel = keyof typeof CHANNELS_LIST;
+export type ChannelListType = keyof typeof CHANNELS_LIST;

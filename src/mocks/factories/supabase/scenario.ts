@@ -1,11 +1,17 @@
 import { faker } from "@faker-js/faker";
-import type { Channel, ContactRow, ContactChannelRow, ConversationRow, MessageRow } from "@/types";
+import type {
+  ChannelListType,
+  ContactRow,
+  ContactChannelRow,
+  ConversationRow,
+  MessageRow,
+} from "@/types";
 import { createContactRow } from "./tables/contacts";
 import { createContactChannelRow } from "./tables/contact-channels";
 import { createConversationRow } from "./tables/conversations";
 import { createMessageRow } from "./tables/messages";
 
-const CHANNELS: Channel[] = ["gmail", "discord", "slack"];
+const CHANNELS: ChannelListType[] = ["gmail", "discord", "slack"];
 
 const TOPICS = [
   "Devis pour un site web",
@@ -65,7 +71,7 @@ export function createWorkspaceScenario(workspaceId: string, contactCount = 5): 
   return { contacts, contactChannels, conversations, messages };
 }
 
-function createMessageThread(conversationId: string, channel: Channel): MessageRow[] {
+function createMessageThread(conversationId: string, channel: ChannelListType): MessageRow[] {
   const topic = faker.helpers.arrayElement(TOPICS);
   const messageCount = faker.number.int({ min: 2, max: 8 });
 

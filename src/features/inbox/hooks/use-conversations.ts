@@ -1,7 +1,7 @@
 "use client";
 
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { UseInfiniteQueryOptions, MutationOptions } from "@tanstack/react-query";
+import type { UseInfiniteQueryOptions, MutationOptions, InfiniteData } from "@tanstack/react-query";
 import {
   conversationsQueryOptions,
   conversationsQueryKey,
@@ -46,15 +46,43 @@ type UpdateConversationOptions = Partial<
   >
 >;
 
+type ConversationsCache = InfiniteData<ConversationPage>;
+
 export const useUpdateConversation = (options?: UpdateConversationOptions) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     ...conversationUpdateMutation(),
     ...options,
-    onSuccess: (...args) => {
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries({ queryKey: conversationsQueryKey() });
+
+      const snapshot = queryClient.getQueryData<ConversationsCache>(conversationsQueryKey());
+
+      queryClient.setQueryData<ConversationsCache>(conversationsQueryKey(), (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map((page) => ({
+            ...page,
+            conversations: page.conversations.map((conv) =>
+              conv.id === variables.id ? { ...conv, unreadCount: 0 } : conv,
+            ),
+          })),
+        };
+      });
+
+      return { snapshot };
+    },
+    onError: (_err, _variables, context) => {
+      const ctx = context as { snapshot?: ConversationsCache } | undefined;
+      if (ctx?.snapshot) {
+        queryClient.setQueryData(conversationsQueryKey(), ctx.snapshot);
+      }
+    },
+    onSettled: (...args) => {
       queryClient.invalidateQueries({ queryKey: conversationsQueryKey() });
-      options?.onSuccess?.(...args);
+      options?.onSettled?.(...args);
     },
   });
 };

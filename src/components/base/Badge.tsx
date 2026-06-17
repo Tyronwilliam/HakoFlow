@@ -1,20 +1,19 @@
 import { Badge as BadgeRoot } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { ReactNode } from "react";
 
 interface BadgeProps extends React.ComponentProps<typeof BadgeRoot> {
-  content: string;
-  colorDot: string;
+  children: ReactNode;
 }
 
-export function Badge({ content, colorDot, className, ...props }: BadgeProps) {
+export function Badge({ children, className, ...props }: BadgeProps) {
   return (
     <BadgeRoot
-      variant="secondary"
-      className={cn("flex items-center gap-1.5 rounded-md text-[12px]", className)}
+      variant={props.variant ?? "default"}
+      className={cn("flex items-center", className)}
       {...props}
     >
-      <span className={cn("h-1.5 w-1.5 rounded-full", colorDot)}></span>
-      {content}
+      {children}
     </BadgeRoot>
   );
 }
