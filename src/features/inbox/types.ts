@@ -1,4 +1,4 @@
-import type { ChannelListType } from "./channels";
+import { ChannelListType } from "../../types";
 
 export interface ConversationRow {
   id: string;

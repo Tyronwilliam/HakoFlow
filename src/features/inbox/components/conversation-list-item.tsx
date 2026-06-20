@@ -1,11 +1,10 @@
 "use client";
-import { ConversationListItem as ConversationListItemType } from "@/features/inbox/adapters";
 import { ChannelBadge } from "@/components/shared/channel-badge";
 import { Paragraph } from "@/components/shared/Text/Paragraph";
+import { ConversationListItem as ConversationListItemType } from "@/features/inbox/adapters";
 import { formatDate } from "@/lib/date";
+import { useParams, useRouter } from "next/navigation";
 import { useUpdateConversation } from "../hooks/use-conversations";
-import { useParams, usePathname, useRouter } from "next/navigation";
-import { cn } from "../../../lib/utils";
 
 interface ConversationListItemProps {
   conversation: ConversationListItemType;
