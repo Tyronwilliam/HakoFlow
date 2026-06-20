@@ -29,7 +29,8 @@ export function Sidebar() {
           href={href}
           className={cn(
             "hover:bg-sidebar-accent/60 relative flex h-10 w-10 items-center justify-center gap-2 rounded-md p-2 text-sm transition-colors",
-            route === href && "text-sidebar-accent-foreground bg-sidebar-accent flex rounded-lg",
+            route.includes(href) &&
+              "text-sidebar-accent-foreground bg-sidebar-accent flex rounded-lg",
           )}
         >
           <Icon className="h-5 w-5" />

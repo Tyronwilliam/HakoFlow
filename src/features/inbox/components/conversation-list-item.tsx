@@ -4,7 +4,8 @@ import { ChannelBadge } from "@/components/shared/channel-badge";
 import { Paragraph } from "@/components/shared/Text/Paragraph";
 import { formatDate } from "@/lib/date";
 import { useUpdateConversation } from "../hooks/use-conversations";
-import { useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
+import { cn } from "../../../lib/utils";
 
 interface ConversationListItemProps {
   conversation: ConversationListItemType;
@@ -12,6 +13,7 @@ interface ConversationListItemProps {
 
 export function ConversationListItem({ conversation }: ConversationListItemProps) {
   const router = useRouter();
+  const params = useParams();
   const { mutate: updateConversation } = useUpdateConversation();
   const isUnread = conversation.unreadCount > 0;
 
@@ -24,9 +26,12 @@ export function ConversationListItem({ conversation }: ConversationListItemProps
     resetUnreadCount();
     router.push(`/inbox/${conversation.id}`);
   };
-
+  //
   return (
     <li className="hover:bg-secondary/40 relative flex w-full items-center gap-3 text-left transition-colors">
+      {params.id === conversation.id && (
+        <span className="bg-primary absolute inset-y-0 left-0 w-0.5"></span>
+      )}
       <button
         className="flex w-full cursor-pointer flex-col gap-1 px-4 py-3 text-left"
         onClick={openThread}
