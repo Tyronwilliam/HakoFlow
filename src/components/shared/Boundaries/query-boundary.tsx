@@ -7,15 +7,30 @@ interface QueryBoundaryProps {
   scope: string;
   children: React.ReactNode;
   error?: Error | null;
+  emptyDescription?: string;
+  emptyTitle?: string;
 }
 
-export function QueryBoundary({ isLoading, isEmpty, scope, children, error }: QueryBoundaryProps) {
+export function QueryBoundary({
+  isLoading,
+  isEmpty,
+  scope,
+  children,
+  error,
+  emptyTitle,
+  emptyDescription,
+}: QueryBoundaryProps) {
   if (isLoading) {
     return <p className="text-muted-foreground text-sm">Loading…</p>;
   }
 
   if (isEmpty && !error) {
-    return <EmptyState title={"No data"} description={`Your ${scope} is empty for now.`} />;
+    return (
+      <EmptyState
+        title={emptyTitle || "No data"}
+        description={emptyDescription || `Your ${scope} is empty for now.`}
+      />
+    );
   }
 
   if (error) {

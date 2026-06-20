@@ -1,8 +1,9 @@
-"use client";
-import { useParams } from "next/navigation";
+import { MessagesList } from "../../../../features/message/components/MessagesList";
 
 export default function Thread() {
-  const { id } = useParams();
-
-  return <div className="flex h-full">Hello {id}</div>;
+  return (
+    <div className="flex h-full flex-1">
+      <MessagesList />
+    </div>
+  );
 }

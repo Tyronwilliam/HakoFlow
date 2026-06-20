@@ -18,31 +18,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { data, error: messagesError } = await supabase
-    .from("messages")
-    .select(
-      `
-    id, 
-    channel, 
-    direction, 
-    content, 
-    status,
-    sent_at, 
-    read_at, 
-    expires_at, 
-    conversation_id,
-    external_id, 
-    attachment_urls,
-    conversations!inner 
-    ( workspace_id,
-      workspaces!inner ( user_id )
-    )
-  `,
-    )
-    .eq("conversation_id", conversationId)
-    .eq("conversations.workspaces.user_id", auth.user.id)
-    .range(startIndex, stopIndex)
-    .order("sent_at", { ascending: true });
+  const { data, error: messagesError } = await supabase.rpc("get_decrypted_messages", {
+    p_conversation_id: conversationId,
+    p_start: startIndex,
+    p_stop: stopIndex,
+  });
 
   if (messagesError) {
     return NextResponse.json({ error: messagesError.message }, { status: 500 });
