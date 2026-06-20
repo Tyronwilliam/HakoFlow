@@ -1,5 +1,5 @@
 import type { SlackMessage } from "@/features/channels/slack/types";
-import type { MessageRow } from "@/types";
+import { MessageRow } from "../../message/types";
 
 export function parseSlackMessage(raw: SlackMessage, conversationId: string): MessageRow {
   return {
@@ -7,9 +7,9 @@ export function parseSlackMessage(raw: SlackMessage, conversationId: string): Me
     conversation_id: conversationId,
     external_id: raw.ts,
     channel: "slack",
-    direction: "inbound",
+    direction: "inbound" as MessageRow["direction"],
     content: raw.text,
-    status: "delivered",
+    status: "delivered" as MessageRow["status"],
     attachment_urls: [],
     sent_at: new Date(parseFloat(raw.ts) * 1000).toISOString(),
     read_at: null,

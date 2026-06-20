@@ -6,7 +6,7 @@ const DEFAULT_STOP_INDEX = 20;
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { searchParams } = new URL(request.url);
-  const { id } = await params;
+  const { id: conversationId } = await params;
   const startIndex = Number(searchParams.get("startIndex") ?? 0);
   const stopIndex = Number(searchParams.get("stopIndex") ?? DEFAULT_STOP_INDEX);
 
@@ -39,7 +39,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     )
   `,
     )
-    .eq("conversation_id", id)
+    .eq("conversation_id", conversationId)
     .eq("conversations.workspaces.user_id", auth.user.id)
     .range(startIndex, stopIndex)
     .order("sent_at", { ascending: true });

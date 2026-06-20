@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker";
-import type { ChannelListType, MessageRow } from "@/types";
+import type { ChannelListType } from "@/types";
+import { MessageRow } from "../../../../features/message/types";
 
 export function createMessageRow(overrides: Partial<MessageRow> = {}): MessageRow {
   return {

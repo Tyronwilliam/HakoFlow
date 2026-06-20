@@ -27,5 +27,5 @@ export const MESSAGE_STATUS = {
   ERROR: "error",
 } as const;
 
-export type MessageDirectionType = keyof typeof MESSAGE_DIRECTION;
-export type MessageStatusType = keyof typeof MESSAGE_STATUS;
+export type MessageDirectionType = (typeof MESSAGE_DIRECTION)[keyof typeof MESSAGE_DIRECTION];
+export type MessageStatusType = (typeof MESSAGE_STATUS)[keyof typeof MESSAGE_STATUS];

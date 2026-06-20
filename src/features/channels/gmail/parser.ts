@@ -1,5 +1,5 @@
 import type { GmailMessage } from "@/features/channels/gmail/types";
-import type { MessageRow } from "@/types";
+import { MessageRow } from "../../message/types";
 
 export function parseGmailMessage(raw: GmailMessage, conversationId: string): MessageRow {
   const getHeader = (name: string) =>
@@ -10,9 +10,9 @@ export function parseGmailMessage(raw: GmailMessage, conversationId: string): Me
     conversation_id: conversationId,
     external_id: raw.id,
     channel: "gmail",
-    direction: "inbound",
+    direction: "inbound" as MessageRow["direction"],
     content: Buffer.from(raw.payload.body.data, "base64url").toString("utf-8"),
-    status: "delivered",
+    status: "delivered" as MessageRow["status"],
     attachment_urls: [],
     sent_at: new Date(getHeader("Date")).toISOString(),
     read_at: null,
