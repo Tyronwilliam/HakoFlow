@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { createClient } from "../../../lib/supabase/server";
+import { createClient } from "../../../../lib/supabase/server";
+import { toMessage } from "../../../../features/message/adapters";
 
 const DEFAULT_STOP_INDEX = 20;
 
@@ -21,31 +22,33 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     .from("messages")
     .select(
       `
-      id,
-      channel,
-      direction,
-      content,
-      status,
-      sent_at,
-      read_at,
-      expires_at,
-      conversation_id,
-      external_id,
-      attachment_urls
-      `,
+    id, 
+    channel, 
+    direction, 
+    content, 
+    status,
+    sent_at, 
+    read_at, 
+    expires_at, 
+    conversation_id,
+    external_id, 
+    attachment_urls,
+    conversations!inner 
+    ( workspace_id,
+      workspaces!inner ( user_id )
+    )
+  `,
     )
     .eq("conversation_id", id)
+    .eq("conversations.workspaces.user_id", auth.user.id)
     .range(startIndex, stopIndex)
-    .single();
+    .order("sent_at", { ascending: true });
 
   if (messagesError) {
     return NextResponse.json({ error: messagesError.message }, { status: 500 });
   }
-  if (!data) {
-    return NextResponse.json({ messages: [] });
-  }
 
-  const messages = data.map();
+  const messages = data.map(toMessage);
 
   return NextResponse.json({ messages });
 }
