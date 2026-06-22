@@ -6,7 +6,7 @@ type MessagesApiResponse = {
   messages: RawMessageRow[];
 };
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 50;
 
 export const messagesQueryKey = (conversationId: string) => ["messages", conversationId] as const;
 

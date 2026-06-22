@@ -19,7 +19,8 @@
 CREATE OR REPLACE FUNCTION public.get_decrypted_messages(
   p_conversation_id uuid,
   p_start           integer DEFAULT 0,
-  p_stop            integer DEFAULT 50
+  p_stop            integer DEFAULT 50,
+  p_order           text    DEFAULT 'asc'
 )
 RETURNS TABLE (
   id              uuid,
@@ -63,12 +64,14 @@ AS $$
   JOIN        workspaces    w    ON w.id    = conv.workspace_id
   WHERE m.conversation_id = p_conversation_id
     AND w.user_id = auth.uid()
-  ORDER BY m.sent_at ASC
+  ORDER BY
+    CASE WHEN p_order = 'asc'  THEN m.sent_at END ASC,
+    CASE WHEN p_order = 'desc' THEN m.sent_at END DESC
   LIMIT  GREATEST(0, p_stop - p_start)
   OFFSET GREATEST(0, p_start);
 $$;
 
 -- Strip the implicit PUBLIC grant that CREATE FUNCTION adds,
 -- then allow only authenticated users to call this function.
-REVOKE ALL ON FUNCTION public.get_decrypted_messages(uuid, integer, integer) FROM PUBLIC;
-GRANT  EXECUTE ON FUNCTION public.get_decrypted_messages(uuid, integer, integer) TO authenticated;
+REVOKE ALL ON FUNCTION public.get_decrypted_messages(uuid, integer, integer, text) FROM PUBLIC;
+GRANT  EXECUTE ON FUNCTION public.get_decrypted_messages(uuid, integer, integer, text) TO authenticated;

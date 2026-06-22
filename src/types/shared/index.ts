@@ -9,4 +9,3 @@ export type { ReminderRow } from "./reminders";
 export type { UserRow } from "./users";
 export type { WhitelistRow } from "./whitelist";
 export type { WorkspaceRow } from "./workspaces";
-export type { GetDecryptedMessageRow } from "./get-decrypted-messages";

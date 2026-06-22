@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "../../../../lib/supabase/server";
 import { toMessage } from "../../../../features/message/adapters";
 
-const DEFAULT_STOP_INDEX = 20;
+const DEFAULT_STOP_INDEX = 50;
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { searchParams } = new URL(request.url);
@@ -22,6 +22,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     p_conversation_id: conversationId,
     p_start: startIndex,
     p_stop: stopIndex,
+    p_order: "desc",
   });
 
   if (messagesError) {
