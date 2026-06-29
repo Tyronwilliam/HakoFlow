@@ -9,6 +9,7 @@ interface QueryBoundaryProps {
   error?: Error | null;
   emptyDescription?: string;
   emptyTitle?: string;
+  emptyAction?: { label: string; onClick: () => void };
 }
 
 export function QueryBoundary({
@@ -19,6 +20,7 @@ export function QueryBoundary({
   error,
   emptyTitle,
   emptyDescription,
+  emptyAction,
 }: QueryBoundaryProps) {
   if (isLoading) {
     return <p className="text-muted-foreground text-sm">Loading…</p>;
@@ -29,6 +31,7 @@ export function QueryBoundary({
       <EmptyState
         title={emptyTitle || "No data"}
         description={emptyDescription || `Your ${scope} is empty for now.`}
+        action={emptyAction}
       />
     );
   }

@@ -2,7 +2,7 @@ import { MessagesList } from "../../../../features/message/components/MessagesLi
 
 export default function Thread() {
   return (
-    <div className="flex h-full flex-1 overflow-y-scroll">
+    <div className="flex h-full flex-1">
       <MessagesList />
     </div>
   );
