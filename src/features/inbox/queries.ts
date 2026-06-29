@@ -1,4 +1,4 @@
-import { inboxApi } from "@/features/inbox/api";
+import { API_INBOX } from "@/features/inbox/api";
 import { ConversationListItem, RawConversationRow } from "@/features/inbox/adapters";
 import { fetchApi } from "@/lib/api";
 
@@ -20,9 +20,7 @@ export const conversationsQueryOptions = () => ({
     const startIndex = pageParam;
     const stopIndex = startIndex + PAGE_SIZE - 1;
 
-    const data = await fetchApi<ConversationsApiResponse>(
-      inboxApi.conversations(startIndex, stopIndex),
-    );
+    const data = await fetchApi<ConversationsApiResponse>(API_INBOX.GET(startIndex, stopIndex));
 
     return {
       conversations: data.conversations,
@@ -35,7 +33,7 @@ export const conversationsQueryOptions = () => ({
 
 export const conversationUpdateMutation = () => ({
   mutationFn: async (payload: UpdateConversationData) => {
-    return fetchApi(inboxApi.update(payload.id), {
+    return fetchApi(API_INBOX.UPDATE(payload.id), {
       method: "POST",
       body: JSON.stringify(payload),
     });

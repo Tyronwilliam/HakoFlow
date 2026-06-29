@@ -442,7 +442,22 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      get_decrypted_messages: {
+        Args: { p_conversation_id: string };
+        Returns: {
+          attachment_urls: string[];
+          channel: string;
+          content: string;
+          conversation_id: string;
+          direction: string;
+          expires_at: string;
+          external_id: string;
+          id: string;
+          read_at: string;
+          sent_at: string;
+          status: string;
+        }[];
+      };
     };
     Enums: {
       [_ in never]: never;

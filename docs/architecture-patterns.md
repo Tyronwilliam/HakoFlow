@@ -104,7 +104,7 @@ Une seule constante par endpoint, jamais d'URL en dur dans un hook/composant.
 
 ```ts
 // src/features/inbox/api.ts
-export const inboxApi = {
+export const API_INBOX = {
   conversations: "/api/conversations",
 } as const;
 ```
@@ -123,7 +123,7 @@ export function useConversations() {
   return useQuery({
     queryKey: ["conversations"],
     queryFn: async () => {
-      const response = await fetch(inboxApi.conversations);
+      const response = await fetch(API_INBOX.GET);
       const data = await response.json();
 
       if (!response.ok) {

@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker";
-import type { ChannelListType, ConversationRow } from "@/types";
+import type { ChannelListType } from "@/types";
+import { ConversationRow } from "../../../../features/inbox/types";
 
 export function createConversationRow(overrides: Partial<ConversationRow> = {}): ConversationRow {
   return {

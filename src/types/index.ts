@@ -6,8 +6,6 @@ export type {
   ContactRow,
   ContactChannelRow,
   WhitelistRow,
-  ConversationRow,
-  MessageRow,
   AiSuggestionRow,
   ReminderRow,
 } from "./shared/index";

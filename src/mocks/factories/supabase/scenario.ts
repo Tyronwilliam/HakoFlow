@@ -1,15 +1,11 @@
 import { faker } from "@faker-js/faker";
-import type {
-  ChannelListType,
-  ContactRow,
-  ContactChannelRow,
-  ConversationRow,
-  MessageRow,
-} from "@/types";
+import type { ChannelListType, ContactRow, ContactChannelRow } from "@/types";
 import { createContactRow } from "./tables/contacts";
 import { createContactChannelRow } from "./tables/contact-channels";
 import { createConversationRow } from "./tables/conversations";
 import { createMessageRow } from "./tables/messages";
+import { ConversationRow } from "../../../features/inbox/types";
+import { MessageRow } from "../../../features/message/types";
 
 const CHANNELS: ChannelListType[] = ["gmail", "discord", "slack"];
 
@@ -62,7 +58,9 @@ export function createWorkspaceScenario(workspaceId: string, contactCount = 5): 
           ...conversation,
           last_message_at: lastMessage.sent_at,
           last_message_preview: lastMessage.content.slice(0, 60),
-          unread_count: thread.filter((m) => m.direction === "inbound" && !m.read_at).length,
+          unread_count: thread.filter(
+            (m) => m.direction === ("inbound" as MessageRow["direction"]) && !m.read_at,
+          ).length,
         });
       }
     }
