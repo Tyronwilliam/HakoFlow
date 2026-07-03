@@ -111,6 +111,7 @@ await sql`
     "contact_id",
     "primary_channel",
     "external_id",
+    "display_handle",
     "last_message_at",
     "last_message_preview",
     "unread_count",

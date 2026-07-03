@@ -3,6 +3,7 @@ import type { ChannelListType } from "./channels";
 export interface ConversationRow {
   contact_id: string | null;
   created_at: string;
+  display_handle: string | null;
   external_id: string | null;
   id: string;
   is_archived: boolean;

@@ -107,6 +107,7 @@ export type Database = {
           external_id: string;
           id: string;
           provider: string;
+          workspace_id: string;
         };
         Insert: {
           contact_id: string;
@@ -114,6 +115,7 @@ export type Database = {
           external_id: string;
           id?: string;
           provider: string;
+          workspace_id: string;
         };
         Update: {
           contact_id?: string;
@@ -121,6 +123,7 @@ export type Database = {
           external_id?: string;
           id?: string;
           provider?: string;
+          workspace_id?: string;
         };
         Relationships: [
           {
@@ -128,6 +131,13 @@ export type Database = {
             columns: ["contact_id"];
             isOneToOne: false;
             referencedRelation: "contacts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "contact_channels_workspace_id_fkey";
+            columns: ["workspace_id"];
+            isOneToOne: false;
+            referencedRelation: "workspaces";
             referencedColumns: ["id"];
           },
         ];
@@ -180,6 +190,7 @@ export type Database = {
         Row: {
           contact_id: string | null;
           created_at: string | null;
+          display_handle: string | null;
           external_id: string | null;
           id: string;
           is_archived: boolean | null;
@@ -194,6 +205,7 @@ export type Database = {
         Insert: {
           contact_id?: string | null;
           created_at?: string | null;
+          display_handle?: string | null;
           external_id?: string | null;
           id?: string;
           is_archived?: boolean | null;
@@ -208,6 +220,7 @@ export type Database = {
         Update: {
           contact_id?: string | null;
           created_at?: string | null;
+          display_handle?: string | null;
           external_id?: string | null;
           id?: string;
           is_archived?: boolean | null;
@@ -442,21 +455,72 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      get_decrypted_messages: {
-        Args: { p_conversation_id: string };
-        Returns: {
-          attachment_urls: string[];
-          channel: string;
-          content: string;
-          conversation_id: string;
-          direction: string;
-          expires_at: string;
-          external_id: string;
-          id: string;
-          read_at: string;
-          sent_at: string;
-          status: string;
-        }[];
+      get_decrypted_messages:
+        | {
+            Args: { p_conversation_id: string };
+            Returns: {
+              attachment_urls: string[];
+              channel: string;
+              content: string;
+              conversation_id: string;
+              direction: string;
+              expires_at: string;
+              external_id: string;
+              id: string;
+              read_at: string;
+              sent_at: string;
+              status: string;
+            }[];
+          }
+        | {
+            Args: {
+              p_conversation_id: string;
+              p_start?: number;
+              p_stop?: number;
+            };
+            Returns: {
+              attachment_urls: string[];
+              channel: string;
+              content: string;
+              conversation_id: string;
+              direction: string;
+              expires_at: string;
+              external_id: string;
+              id: string;
+              read_at: string;
+              sent_at: string;
+              status: string;
+            }[];
+          }
+        | {
+            Args: {
+              p_conversation_id: string;
+              p_order?: string;
+              p_start?: number;
+              p_stop?: number;
+            };
+            Returns: {
+              attachment_urls: string[];
+              channel: string;
+              content: string;
+              conversation_id: string;
+              direction: string;
+              expires_at: string;
+              external_id: string;
+              id: string;
+              read_at: string;
+              sent_at: string;
+              status: string;
+            }[];
+          };
+      group_conversations_under_contact: {
+        Args: {
+          p_conversation_ids: string[];
+          p_new_contact_name: string;
+          p_target_contact_id: string;
+          p_workspace_id: string;
+        };
+        Returns: string;
       };
     };
     Enums: {

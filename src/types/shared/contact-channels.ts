@@ -6,4 +6,5 @@ export interface ContactChannelRow {
   external_id: string;
   id: string;
   provider: ChannelListType;
+  workspace_id: string;
 }

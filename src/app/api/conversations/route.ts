@@ -37,12 +37,13 @@ export async function GET(request: Request) {
       `
       id,
       primary_channel,
+      external_id,
       last_message_at,
       last_message_preview,
       unread_count,
       is_pinned,
       is_starred,
-      contacts ( name, contact_channels ( provider, display_handle ) )
+      contacts ( name, contact_channels ( provider, external_id, display_handle ) )
     `,
     )
     .eq("workspace_id", workspace.id)

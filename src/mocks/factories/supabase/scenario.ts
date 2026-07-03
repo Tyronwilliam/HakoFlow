@@ -38,7 +38,13 @@ export function createWorkspaceScenario(workspaceId: string, contactCount = 5): 
     const channels = faker.helpers.arrayElements(CHANNELS, { min: 1, max: CHANNELS.length });
 
     for (const channel of channels) {
-      contactChannels.push(createContactChannelRow({ contact_id: contact.id, provider: channel }));
+      contactChannels.push(
+        createContactChannelRow({
+          contact_id: contact.id,
+          workspace_id: workspaceId,
+          provider: channel,
+        }),
+      );
 
       const conversationCount = faker.number.int({ min: 1, max: 2 });
 

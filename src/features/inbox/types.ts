@@ -5,6 +5,7 @@ export interface ConversationRow {
   primary_channel: ChannelListType;
   contact_id: string | null;
   created_at: string;
+  display_handle: string | null;
   external_id: string | null;
   is_archived: boolean;
   is_pinned: boolean;

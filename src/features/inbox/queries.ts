@@ -1,9 +1,22 @@
 import { API_INBOX } from "@/features/inbox/api";
-import { ConversationListItem, RawConversationRow } from "@/features/inbox/adapters";
+import {
+  ConversationListItem,
+  RawConversationRow,
+  UnlinkedConversationOption,
+  ConversationDetail,
+} from "@/features/inbox/adapters";
 import { fetchApi } from "@/lib/api";
 
 type ConversationsApiResponse = {
   conversations: RawConversationRow[];
+};
+
+type UnlinkedConversationsApiResponse = {
+  conversations: UnlinkedConversationOption[];
+};
+
+type ConversationDetailApiResponse = {
+  conversation: ConversationDetail;
 };
 
 type UpdateConversationData = { id: ConversationListItem["id"] } & Partial<
@@ -29,6 +42,21 @@ export const conversationsQueryOptions = () => ({
   },
   initialPageParam: 0,
   getNextPageParam: (lastPage: { nextCursor: number | null }) => lastPage.nextCursor,
+});
+
+export const unlinkedConversationsQueryKey = () => ["conversations", "unlinked"] as const;
+
+export const unlinkedConversationsQueryOptions = () => ({
+  queryKey: unlinkedConversationsQueryKey(),
+  queryFn: () => fetchApi<UnlinkedConversationsApiResponse>(API_INBOX.LIST_UNLINKED()),
+});
+
+export const conversationDetailQueryKey = (id: ConversationListItem["id"]) =>
+  ["conversation", id] as const;
+
+export const conversationDetailQueryOptions = (id: ConversationListItem["id"]) => ({
+  queryKey: conversationDetailQueryKey(id),
+  queryFn: () => fetchApi<ConversationDetailApiResponse>(API_INBOX.GET_ONE(id)),
 });
 
 export const conversationUpdateMutation = () => ({

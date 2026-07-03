@@ -13,7 +13,7 @@ import path from "path";
 
 type Override = { type?: string; nonNull?: boolean };
 
-const CHANNEL_IMPORT = { name: "Channel", from: "./channels" };
+const CHANNEL_IMPORT = { name: "ChannelListType", from: "./channels" };
 
 const TYPE_OVERRIDES: Record<string, Record<string, Override>> = {
   ai_suggestions: {
@@ -22,12 +22,12 @@ const TYPE_OVERRIDES: Record<string, Record<string, Override>> = {
     type: { type: '"reply" | "summary"' },
   },
   connected_accounts: {
-    provider: { type: "Channel" },
+    provider: { type: "ChannelListType" },
     status: { type: '"connected" | "disconnected" | "error"' },
     connected_at: { nonNull: true },
   },
   contact_channels: {
-    provider: { type: "Channel" },
+    provider: { type: "ChannelListType" },
   },
   contacts: {
     blacklisted: { nonNull: true },
@@ -37,7 +37,7 @@ const TYPE_OVERRIDES: Record<string, Record<string, Override>> = {
     updated_at: { nonNull: true },
   },
   conversations: {
-    primary_channel: { type: "Channel" },
+    primary_channel: { type: "ChannelListType" },
     unread_count: { nonNull: true },
     is_pinned: { nonNull: true },
     is_archived: { nonNull: true },
@@ -45,7 +45,7 @@ const TYPE_OVERRIDES: Record<string, Record<string, Override>> = {
     created_at: { nonNull: true },
   },
   messages: {
-    channel: { type: "Channel" },
+    channel: { type: "ChannelListType" },
     direction: { type: '"inbound" | "outbound"' },
     status: { type: '"draft" | "sent" | "delivered" | "read" | "error"' },
     attachment_urls: { nonNull: true },
@@ -61,7 +61,7 @@ const TYPE_OVERRIDES: Record<string, Record<string, Override>> = {
     created_at: { nonNull: true },
   },
   whitelist: {
-    provider: { type: "Channel" },
+    provider: { type: "ChannelListType" },
     created_at: { nonNull: true },
   },
   workspaces: {
@@ -106,8 +106,19 @@ const lines = source.split("\n");
 const tables = new Map<string, Map<string, string>>();
 let currentTable: string | null = null;
 let inRow = false;
+let inTables = false;
 
 for (const line of lines) {
+  if (line === "    Tables: {") {
+    inTables = true;
+    continue;
+  }
+  if (inTables && /^    \w+: \{$/.test(line)) {
+    // Next 4-space-indented section (Views, Functions, Enums, ...) ends Tables.
+    inTables = false;
+  }
+  if (!inTables) continue;
+
   const tableMatch = line.match(/^      (\w+): \{$/);
   if (tableMatch) {
     currentTable = tableMatch[1];
@@ -136,7 +147,9 @@ for (const line of lines) {
   }
 }
 
-const exportLines: string[] = [`export type { Channel } from "./channels";`];
+const exportLines: string[] = [
+  `export type { ${CHANNEL_IMPORT.name} } from "${CHANNEL_IMPORT.from}";`,
+];
 
 for (const [tableName, fields] of tables) {
   const rowType = toRowTypeName(tableName);
@@ -149,7 +162,7 @@ for (const [tableName, fields] of tables) {
 
     if (override?.type) {
       type = override.type;
-      if (type === "Channel") usesChannel = true;
+      if (type === CHANNEL_IMPORT.name) usesChannel = true;
     } else if (override?.nonNull) {
       type = stripNull(generatedType);
     }

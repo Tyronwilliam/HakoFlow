@@ -1,4 +1,4 @@
-import { AlertTriangle, RefreshCw, Trash2 } from "lucide-react";
+import { AlertTriangle, RefreshCw } from "lucide-react";
 import { cn } from "../../../lib/utils";
 import { Message } from "../adapters";
 import { Button } from "../../../components/ui/button";
