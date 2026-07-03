@@ -6,7 +6,6 @@ import { CHANNELS_LIST } from "@/lib/constant/channels";
 import type { ChannelListType } from "@/types";
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useContacts } from "@/features/contacts/hooks/use-contacts";
@@ -22,7 +21,6 @@ import {
   type GroupConversationsState,
 } from "@/features/contacts/actions/group-conversations";
 
-const NEW_CONTACT_VALUE = "";
 const NO_SELECTION_VALUE = "";
 
 const selectClassName = cn(
@@ -48,15 +46,24 @@ export function GroupConversationsWizard({
   const contacts = useContacts();
   const unlinkedConversations = useUnlinkedConversations();
 
-  const [targetContactId, setTargetContactId] = useState<string>(NEW_CONTACT_VALUE);
-  const [newContactName, setNewContactName] = useState("");
-  const [selections, setSelections] = useState<Record<ChannelListType, string>>(() => {
-    const initial = {} as Record<ChannelListType, string>;
+  const [targetContactId, setTargetContactId] = useState<string>(NO_SELECTION_VALUE);
+  const [selections, setSelections] = useState<Record<ChannelListType, string[]>>(() => {
+    const initial = {} as Record<ChannelListType, string[]>;
     for (const provider of Object.keys(CHANNELS_LIST) as ChannelListType[]) {
-      initial[provider] = provider === currentProvider ? conversationId : NO_SELECTION_VALUE;
+      initial[provider] = provider === currentProvider ? [conversationId] : [];
     }
     return initial;
   });
+
+  const toggleSelection = (provider: ChannelListType, id: string) => {
+    setSelections((prev) => {
+      const current = prev[provider];
+      const next = current.includes(id)
+        ? current.filter((selectedId) => selectedId !== id)
+        : [...current, id];
+      return { ...prev, [provider]: next };
+    });
+  };
 
   const optionsByProvider = useMemo(() => {
     const grouped = {} as Record<
@@ -112,7 +119,8 @@ export function GroupConversationsWizard({
       <DialogHeader>
         <DialogTitle>Regrouper sous un contact</DialogTitle>
         <DialogDescription>
-          Choisissez un contact cible, puis rattachez au plus une conversation non liée par canal.
+          Choisissez un contact existant, puis sélectionnez les conversations non liées à lui
+          rattacher.
         </DialogDescription>
       </DialogHeader>
 
@@ -125,7 +133,9 @@ export function GroupConversationsWizard({
           value={targetContactId}
           onChange={(event) => setTargetContactId(event.target.value)}
         >
-          <option value={NEW_CONTACT_VALUE}>+ Nouveau contact</option>
+          <option value={NO_SELECTION_VALUE} disabled>
+            Sélectionner un contact
+          </option>
           {(contacts.data ?? []).map((contact) => (
             <option key={contact.id} value={contact.id}>
               {contact.name}
@@ -134,50 +144,37 @@ export function GroupConversationsWizard({
         </select>
       </div>
 
-      {targetContactId === NEW_CONTACT_VALUE && (
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="newContactName">Nom du nouveau contact</Label>
-          <Input
-            id="newContactName"
-            name="newContactName"
-            value={newContactName}
-            onChange={(event) => setNewContactName(event.target.value)}
-            placeholder="ex: Marie Dupont"
-          />
-        </div>
-      )}
-
       {(Object.keys(CHANNELS_LIST) as ChannelListType[]).map((provider) => (
         <div key={provider} className="flex flex-col gap-1.5">
-          <Label htmlFor={`selection-${provider}`}>{CHANNELS_LIST[provider]}</Label>
-          <select
-            id={`selection-${provider}`}
-            className={selectClassName}
-            value={selections[provider]}
-            onChange={(event) =>
-              setSelections((prev) => ({ ...prev, [provider]: event.target.value }))
-            }
-          >
-            <option value={NO_SELECTION_VALUE}>Aucune</option>
+          <Label>{CHANNELS_LIST[provider]}</Label>
+          <div className="flex flex-col gap-1.5 rounded-lg border p-2">
+            {optionsByProvider[provider].length === 0 && (
+              <p className="text-muted-foreground text-sm">Aucune conversation non liée</p>
+            )}
             {optionsByProvider[provider].map((option) => (
-              <option key={option.id} value={option.id}>
+              <label key={option.id} className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={selections[provider].includes(option.id)}
+                  onChange={() => toggleSelection(provider, option.id)}
+                />
                 {option.displayHandle ?? option.externalId}
-              </option>
+              </label>
             ))}
-          </select>
+          </div>
         </div>
       ))}
 
-      {(Object.keys(CHANNELS_LIST) as ChannelListType[])
-        .filter((provider) => selections[provider] !== NO_SELECTION_VALUE)
-        .map((provider) => (
-          <input key={provider} type="hidden" name="conversationIds" value={selections[provider]} />
-        ))}
+      {(Object.keys(CHANNELS_LIST) as ChannelListType[]).flatMap((provider) =>
+        selections[provider].map((id) => (
+          <input key={id} type="hidden" name="conversationIds" value={id} />
+        )),
+      )}
 
       {state.error && <p className="text-destructive text-sm">{state.error}</p>}
 
       <DialogFooter>
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" disabled={isPending || targetContactId === NO_SELECTION_VALUE}>
           {isPending ? "Regroupement..." : "Regrouper"}
         </Button>
       </DialogFooter>

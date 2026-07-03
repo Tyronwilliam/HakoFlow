@@ -29,7 +29,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   const { data, error } = await supabase
     .from("conversations")
     .select(
-      "id, primary_channel, external_id, contact_id, contacts ( name, contact_channels ( provider, external_id, display_handle ) )",
+      "id, primary_channel, external_id, display_handle, contact_id, contacts ( name, contact_channels ( provider, external_id, display_handle ) )",
     )
     .eq("id", conversationId)
     .eq("workspace_id", workspace.id)

@@ -97,6 +97,7 @@ export interface RawConversationDetailRow {
   id: string;
   primary_channel: string;
   external_id: string | null;
+  display_handle: string | null;
   contact_id: string | null;
   contacts: {
     name: string;
@@ -117,7 +118,7 @@ export function toConversationDetail(raw: RawConversationDetailRow): Conversatio
     externalId: raw.external_id,
     contactId: raw.contact_id,
     contactName: raw.contacts?.name ?? null,
-    contactHandle: contactChannel?.display_handle ?? null,
+    contactHandle: contactChannel?.display_handle ?? raw.display_handle ?? null,
   };
 }
 

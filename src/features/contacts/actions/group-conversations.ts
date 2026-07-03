@@ -14,11 +14,9 @@ export async function groupConversationsUnderContact(
   formData: FormData,
 ): Promise<GroupConversationsState> {
   const rawTargetContactId = formData.get("targetContactId")?.toString();
-  const rawNewContactName = formData.get("newContactName")?.toString();
 
   const parsed = groupConversationsSchema.safeParse({
-    targetContactId: rawTargetContactId ? rawTargetContactId : null,
-    newContactName: rawNewContactName ? rawNewContactName : undefined,
+    targetContactId: rawTargetContactId,
     conversationIds: formData.getAll("conversationIds").map(String),
   });
 
@@ -46,8 +44,8 @@ export async function groupConversationsUnderContact(
 
   const { data, error } = await supabase.rpc("group_conversations_under_contact", {
     p_workspace_id: workspace.id,
-    p_target_contact_id: parsed.data.targetContactId ?? "",
-    p_new_contact_name: parsed.data.newContactName ?? "",
+    p_target_contact_id: parsed.data.targetContactId,
+    p_new_contact_name: "",
     p_conversation_ids: parsed.data.conversationIds,
   });
 

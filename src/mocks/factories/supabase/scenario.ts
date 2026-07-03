@@ -31,6 +31,28 @@ export function createWorkspaceScenario(workspaceId: string, contactCount = 5): 
   const conversations: ConversationRow[] = [];
   const messages: MessageRow[] = [];
 
+  function addConversation(contactId: string | null, channel: ChannelListType) {
+    const conversation = createConversationRow({
+      workspace_id: workspaceId,
+      contact_id: contactId,
+      primary_channel: channel,
+    });
+
+    const thread = createMessageThread(conversation.id, channel);
+    messages.push(...thread);
+
+    const lastMessage = thread[thread.length - 1];
+
+    conversations.push({
+      ...conversation,
+      last_message_at: lastMessage.sent_at,
+      last_message_preview: lastMessage.content.slice(0, 60),
+      unread_count: thread.filter(
+        (m) => m.direction === ("inbound" as MessageRow["direction"]) && !m.read_at,
+      ).length,
+    });
+  }
+
   for (let i = 0; i < contactCount; i++) {
     const contact = createContactRow({ workspace_id: workspaceId });
     contacts.push(contact);
@@ -49,26 +71,20 @@ export function createWorkspaceScenario(workspaceId: string, contactCount = 5): 
       const conversationCount = faker.number.int({ min: 1, max: 2 });
 
       for (let c = 0; c < conversationCount; c++) {
-        const conversation = createConversationRow({
-          workspace_id: workspaceId,
-          contact_id: contact.id,
-          primary_channel: channel,
-        });
-
-        const thread = createMessageThread(conversation.id, channel);
-        messages.push(...thread);
-
-        const lastMessage = thread[thread.length - 1];
-
-        conversations.push({
-          ...conversation,
-          last_message_at: lastMessage.sent_at,
-          last_message_preview: lastMessage.content.slice(0, 60),
-          unread_count: thread.filter(
-            (m) => m.direction === ("inbound" as MessageRow["direction"]) && !m.read_at,
-          ).length,
-        });
+        addConversation(contact.id, channel);
       }
+    }
+  }
+
+  // Unlinked conversations: no contact_id yet, so they exercise the
+  // "group under a contact" wizard (src/features/contacts/components/
+  // group-conversations-wizard.tsx). Several per provider so a contact
+  // can be linked to more than one identifier of the same provider
+  // (e.g. 3 Gmail addresses under one contact).
+  for (const channel of CHANNELS) {
+    const unlinkedCount = faker.number.int({ min: 2, max: 4 });
+    for (let u = 0; u < unlinkedCount; u++) {
+      addConversation(null, channel);
     }
   }
 
