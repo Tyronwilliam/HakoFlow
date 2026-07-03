@@ -15,18 +15,18 @@
 -- close the race window where two concurrent submissions could
 -- both pass the "identifier not taken" check before either writes.
 --
--- p_target_contact_id/p_new_contact_name are `text`, not `uuid`,
--- with an empty string as the "unset" sentinel (rather than NULL):
--- `supabase gen types` always types RPC args as non-nullable, so a
--- NULL-based signature would force a lying cast on the TS side just
--- to satisfy the generated type. Empty string keeps both the generated
--- type and the call site honest.
+-- Original signature: p_target_contact_id uuid. Superseded by
+-- 20260703093557_fix_group_conversations_under_contact_signature.sql,
+-- which switches it to text (empty string as the "unset" sentinel)
+-- because `supabase gen types` always types RPC args as non-nullable,
+-- so a NULL-based uuid signature would force a lying cast on the TS
+-- side just to satisfy the generated type.
 -- =========================================================
 
 CREATE OR REPLACE FUNCTION public.group_conversations_under_contact(
   p_workspace_id      uuid,
-  p_target_contact_id text,       -- '' => create a new contact
-  p_new_contact_name  text,       -- required iff p_target_contact_id = ''
+  p_target_contact_id uuid,       -- NULL => create a new contact
+  p_new_contact_name  text,       -- required iff p_target_contact_id IS NULL
   p_conversation_ids  uuid[]      -- 1..3 conversation ids to attach
 )
 RETURNS uuid                       -- the resolved/created contact_id
@@ -48,9 +48,9 @@ BEGIN
     RAISE EXCEPTION 'Unauthorized';
   END IF;
 
-  IF p_target_contact_id IS NOT NULL AND p_target_contact_id <> '' THEN
+  IF p_target_contact_id IS NOT NULL THEN
     SELECT id INTO v_contact_id FROM contacts
-      WHERE id = p_target_contact_id::uuid AND workspace_id = p_workspace_id;
+      WHERE id = p_target_contact_id AND workspace_id = p_workspace_id;
     IF v_contact_id IS NULL THEN
       RAISE EXCEPTION 'Contact not found in this workspace.';
     END IF;
@@ -93,5 +93,5 @@ BEGIN
 END;
 $$;
 
-REVOKE ALL ON FUNCTION public.group_conversations_under_contact(uuid, text, text, uuid[]) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION public.group_conversations_under_contact(uuid, text, text, uuid[]) TO authenticated;
+REVOKE ALL ON FUNCTION public.group_conversations_under_contact(uuid, uuid, text, uuid[]) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.group_conversations_under_contact(uuid, uuid, text, uuid[]) TO authenticated;

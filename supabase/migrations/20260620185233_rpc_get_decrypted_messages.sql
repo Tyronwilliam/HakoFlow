@@ -14,13 +14,15 @@
 --
 -- Key storage: Supabase Vault, secret name 'hubdesk_messages_key'
 -- Encryption:  pgp_sym_encrypt / pgp_sym_decrypt (pgcrypto)
+--
+-- Original signature: no pagination/ordering, single row-set
+-- ordered ascending by sent_at. Superseded by
+-- 20260703140000_get_decrypted_messages_pagination.sql, which
+-- drops this overload and recreates it with p_start/p_stop/p_order.
 -- =========================================================
 
 CREATE OR REPLACE FUNCTION public.get_decrypted_messages(
-  p_conversation_id uuid,
-  p_start           integer DEFAULT 0,
-  p_stop            integer DEFAULT 50,
-  p_order           text    DEFAULT 'asc'
+  p_conversation_id uuid
 )
 RETURNS TABLE (
   id              uuid,
@@ -64,14 +66,10 @@ AS $$
   JOIN        workspaces    w    ON w.id    = conv.workspace_id
   WHERE m.conversation_id = p_conversation_id
     AND w.user_id = auth.uid()
-  ORDER BY
-    CASE WHEN p_order = 'asc'  THEN m.sent_at END ASC,
-    CASE WHEN p_order = 'desc' THEN m.sent_at END DESC
-  LIMIT  GREATEST(0, p_stop - p_start)
-  OFFSET GREATEST(0, p_start);
+  ORDER BY m.sent_at ASC;
 $$;
 
 -- Strip the implicit PUBLIC grant that CREATE FUNCTION adds,
 -- then allow only authenticated users to call this function.
-REVOKE ALL ON FUNCTION public.get_decrypted_messages(uuid, integer, integer, text) FROM PUBLIC;
-GRANT  EXECUTE ON FUNCTION public.get_decrypted_messages(uuid, integer, integer, text) TO authenticated;
+REVOKE ALL ON FUNCTION public.get_decrypted_messages(uuid) FROM PUBLIC;
+GRANT  EXECUTE ON FUNCTION public.get_decrypted_messages(uuid) TO authenticated;
