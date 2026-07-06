@@ -1,9 +1,9 @@
 import { API_INBOX } from "@/features/inbox/api";
-import { ConversationListItem, RawConversationRow } from "@/features/inbox/adapters";
+import { ConversationListItem, RawContactGroupRow } from "@/features/inbox/adapters";
 import { fetchApi } from "@/lib/api";
 
 type ConversationsApiResponse = {
-  conversations: RawConversationRow[];
+  groups: RawContactGroupRow[];
 };
 
 type UpdateConversationData = { id: ConversationListItem["id"] } & Partial<
@@ -23,8 +23,8 @@ export const conversationsQueryOptions = () => ({
     const data = await fetchApi<ConversationsApiResponse>(API_INBOX.GET(startIndex, stopIndex));
 
     return {
-      conversations: data.conversations,
-      nextCursor: data.conversations.length === PAGE_SIZE ? startIndex + PAGE_SIZE : null,
+      groups: data.groups,
+      nextCursor: data.groups.length === PAGE_SIZE ? startIndex + PAGE_SIZE : null,
     };
   },
   initialPageParam: 0,

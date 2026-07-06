@@ -9,8 +9,10 @@ import { PaginationError } from "../../../components/shared/Boundaries/paginatio
 export function ConversationList() {
   const conversations = useListConversations();
 
+  const flatConversations = (conversations.data ?? []).flatMap((group) => group.conversations);
+
   const hasPreviousData = conversations.data !== undefined;
-  const isConversationEmpty = (conversations.data ?? []).length === 0;
+  const isConversationEmpty = flatConversations.length === 0;
 
   const { containerRef, sentinelRef } = useInfiniteScroll({
     hasNextPage: conversations.hasNextPage,
@@ -33,7 +35,7 @@ export function ConversationList() {
       >
         <div ref={containerRef} className="h-full overflow-y-auto">
           <ul className="relative divide-y">
-            {(conversations.data ?? []).map((conversation) => (
+            {flatConversations.map((conversation) => (
               <ConversationListItem key={conversation.id} conversation={conversation} />
             ))}
           </ul>

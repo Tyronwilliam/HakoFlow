@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { toConversationListItem } from "@/features/inbox/adapters";
+import { toContactConversationGroup } from "@/features/inbox/adapters";
+import type { RawContactGroupRow, RawGroupedConversation } from "@/features/inbox/adapters";
 
 const DEFAULT_STOP_INDEX = 20;
 
@@ -28,33 +29,25 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: workspaceError.message }, { status: 500 });
   }
   if (!workspace) {
-    return NextResponse.json({ conversations: [] });
+    return NextResponse.json({ groups: [] });
   }
 
-  const { data, error } = await supabase
-    .from("conversations")
-    .select(
-      `
-      id,
-      primary_channel,
-      last_message_at,
-      last_message_preview,
-      unread_count,
-      is_pinned,
-      is_starred,
-      contacts ( name, contact_channels ( provider, display_handle ) )
-    `,
-    )
-    .eq("workspace_id", workspace.id)
-    .eq("is_archived", false)
-    .range(startIndex, stopIndex)
-    .order("last_message_at", { ascending: false });
+  const { data, error } = await supabase.rpc("list_contact_conversation_groups", {
+    p_workspace_id: workspace.id,
+    p_start_index: startIndex,
+    p_stop_index: stopIndex,
+  });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const conversations = data.map(toConversationListItem);
+  const rawGroups = data.map((row) => ({
+    ...row,
+    conversations: (row.conversations ?? []) as unknown as RawGroupedConversation[],
+  })) satisfies RawContactGroupRow[];
 
-  return NextResponse.json({ conversations });
+  const groups = rawGroups.map(toContactConversationGroup);
+
+  return NextResponse.json({ groups });
 }
