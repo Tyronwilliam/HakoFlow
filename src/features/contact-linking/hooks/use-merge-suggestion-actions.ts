@@ -6,6 +6,7 @@ import {
   mergeSuggestionMutation,
   mergeSuggestionsQueryKey,
 } from "@/features/contact-linking/queries";
+import { conversationsQueryKey } from "@/features/inbox/queries";
 
 export function useMergeSuggestionActions() {
   const queryClient = useQueryClient();
@@ -18,7 +19,11 @@ export function useMergeSuggestionActions() {
 
   const merge = useMutation({
     ...mergeSuggestionMutation(),
-    onSuccess: invalidate,
+    onSuccess: () => {
+      invalidate();
+      queryClient.invalidateQueries({ queryKey: ["contacts"] });
+      queryClient.invalidateQueries({ queryKey: conversationsQueryKey() });
+    },
   });
 
   return { ignore, merge };
