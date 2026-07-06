@@ -530,6 +530,10 @@ export type Database = {
           status: string;
         }[];
       };
+      link_contact_channel: {
+        Args: { p_contact_channel_id: string; p_target_contact_id: string };
+        Returns: string;
+      };
       merge_contacts: {
         Args: { p_source_contact_id: string; p_target_contact_id: string };
         Returns: string;
