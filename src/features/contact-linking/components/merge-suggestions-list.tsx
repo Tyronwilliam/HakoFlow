@@ -16,7 +16,7 @@ export function MergeSuggestionsList() {
       emptyTitle="Aucune suggestion"
       emptyDescription="Aucun contact ne semble dupliqué à travers plusieurs canaux pour l'instant."
     >
-      <div className="flex flex-col gap-3">
+      <div className="flex max-h-120 flex-col gap-3 overflow-y-auto p-1">
         {(suggestions.data ?? []).map((suggestion) => (
           <MergeSuggestionCard key={suggestion.id} suggestion={suggestion} />
         ))}

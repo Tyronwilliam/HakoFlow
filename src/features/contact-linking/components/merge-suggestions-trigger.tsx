@@ -28,7 +28,7 @@ export function MergeSuggestionsTrigger() {
         )}
         <span className="sr-only">Suggestions de fusion de contacts</span>
       </DialogTrigger>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="min-w-fit sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Suggestions de fusion</DialogTitle>
         </DialogHeader>
