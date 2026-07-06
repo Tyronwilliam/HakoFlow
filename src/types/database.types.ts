@@ -107,6 +107,7 @@ export type Database = {
           external_id: string;
           id: string;
           provider: string;
+          workspace_id: string;
         };
         Insert: {
           contact_id: string;
@@ -114,6 +115,7 @@ export type Database = {
           external_id: string;
           id?: string;
           provider: string;
+          workspace_id: string;
         };
         Update: {
           contact_id?: string;
@@ -121,6 +123,7 @@ export type Database = {
           external_id?: string;
           id?: string;
           provider?: string;
+          workspace_id?: string;
         };
         Relationships: [
           {
@@ -128,6 +131,13 @@ export type Database = {
             columns: ["contact_id"];
             isOneToOne: false;
             referencedRelation: "contacts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "contact_channels_workspace_id_fkey";
+            columns: ["workspace_id"];
+            isOneToOne: false;
+            referencedRelation: "workspaces";
             referencedColumns: ["id"];
           },
         ];
@@ -457,6 +467,16 @@ export type Database = {
           sent_at: string;
           status: string;
         }[];
+      };
+      upsert_contact_channel: {
+        Args: {
+          p_contact_name?: string | null;
+          p_display_handle?: string | null;
+          p_external_id: string;
+          p_provider: string;
+          p_workspace_id: string;
+        };
+        Returns: string;
       };
     };
     Enums: {
