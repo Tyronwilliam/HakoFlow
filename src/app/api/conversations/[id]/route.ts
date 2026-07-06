@@ -20,5 +20,17 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (conversationError) {
     return NextResponse.json({ error: conversationError.message }, { status: 500 });
   }
+
+  const { error: messagesError } = await supabase
+    .from("messages")
+    .update({ read_at: new Date().toISOString() })
+    .eq("conversation_id", conversationId)
+    .eq("direction", "inbound")
+    .is("read_at", null);
+
+  if (messagesError) {
+    return NextResponse.json({ error: messagesError.message }, { status: 500 });
+  }
+
   return NextResponse.json({ success: "conversation row updated" }, { status });
 }

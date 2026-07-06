@@ -1,9 +1,9 @@
 import { API_INBOX } from "@/features/inbox/api";
-import { ConversationListItem, RawContactGroupRow } from "@/features/inbox/adapters";
+import { ContactConversationGroup, ConversationListItem } from "@/features/inbox/adapters";
 import { fetchApi } from "@/lib/api";
 
 type ConversationsApiResponse = {
-  groups: RawContactGroupRow[];
+  groups: ContactConversationGroup[];
 };
 
 type UpdateConversationData = { id: ConversationListItem["id"] } & Partial<

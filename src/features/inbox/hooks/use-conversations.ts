@@ -8,10 +8,7 @@ import {
   conversationUpdateMutation,
 } from "@/features/inbox/queries";
 import type { ContactConversationGroup } from "@/features/inbox/adapters";
-import {
-  contactConversationGroupSchema,
-  toContactConversationGroup,
-} from "@/features/inbox/adapters";
+import { contactConversationGroupSchema } from "@/features/inbox/adapters";
 import { parseApiResponse } from "@/lib/api";
 
 type ConversationPage = Awaited<
@@ -35,7 +32,7 @@ export const useListConversations = (options?: ListConversationsOptions) => {
     select: (data) =>
       parseApiResponse({
         schema: contactConversationGroupSchema.array(),
-        data: data.pages.flatMap((p: ConversationPage) => p.groups.map(toContactConversationGroup)),
+        data: data.pages.flatMap((p: ConversationPage) => p.groups),
         context: "conversations.list",
       }),
   });
@@ -72,16 +69,14 @@ export const useUpdateConversation = (options?: UpdateConversationOptions) => {
               if (!group.conversations.some((conv) => conv.id === variables.id)) return group;
 
               const conversations = group.conversations.map((conv) =>
-                conv.id === variables.id ? { ...conv, unread_count: 0 } : conv,
+                conv.id === variables.id ? { ...conv, unreadCount: 0 } : conv,
               );
 
               return {
                 ...group,
                 conversations,
-                total_unread: conversations.reduce(
-                  (sum, conv) => sum + (conv.unread_count ?? 0),
-                  0,
-                ),
+                unreadConversationsCount: conversations.filter((conv) => conv.unreadCount > 0)
+                  .length,
               };
             }),
           })),

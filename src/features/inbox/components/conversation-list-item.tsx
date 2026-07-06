@@ -37,7 +37,9 @@ export function ConversationListItem({ conversation }: ConversationListItemProps
         aria-label="open-conversation"
       >
         {isUnread && (
-          <span className="absolute top-1/2 right-4 h-2 w-2 -translate-y-1/2 rounded-full bg-red-700"></span>
+          <span className="absolute top-1/2 right-4 flex h-4 min-w-4 -translate-y-1/2 items-center justify-center rounded-full bg-red-700 px-1 text-[10px] font-semibold text-white">
+            {conversation.unreadCount}
+          </span>
         )}
 
         <div className="flex items-center justify-between">

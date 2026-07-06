@@ -15,7 +15,7 @@ export interface RawGroupedConversation {
 export interface RawContactGroupRow {
   group_key: string;
   contact_name: string;
-  total_unread: number | string | null;
+  unread_conversations: number | string | null;
   last_message_at: string | null;
   channels: string[];
   conversations: RawGroupedConversation[];
@@ -43,7 +43,7 @@ export function toContactConversationGroup(raw: RawContactGroupRow): ContactConv
     id: raw.group_key,
     contactName: raw.contact_name,
     channels: raw.channels as ChannelListType[],
-    totalUnread: Number(raw.total_unread ?? 0),
+    unreadConversationsCount: Number(raw.unread_conversations ?? 0),
     lastMessageAt: raw.last_message_at,
     conversations: raw.conversations.map((conversation) =>
       toConversationListItem(conversation, raw.contact_name),
@@ -69,7 +69,7 @@ export const contactConversationGroupSchema = z.object({
   id: z.string(),
   contactName: z.string(),
   channels: z.array(z.enum(["gmail", "discord", "slack"])),
-  totalUnread: z.number(),
+  unreadConversationsCount: z.number(),
   lastMessageAt: z.string().nullable(),
   conversations: z.array(conversationListItemSchema),
 });

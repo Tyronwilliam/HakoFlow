@@ -551,7 +551,7 @@ export type Database = {
           conversations: Json;
           group_key: string;
           last_message_at: string;
-          total_unread: number;
+          unread_conversations: number;
         }[];
       };
       merge_contacts: {
