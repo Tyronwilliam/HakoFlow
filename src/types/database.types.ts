@@ -246,6 +246,64 @@ export type Database = {
           },
         ];
       };
+      merge_suggestions: {
+        Row: {
+          contact_a_id: string;
+          contact_b_id: string;
+          created_at: string | null;
+          decided_at: string | null;
+          id: string;
+          reason: string;
+          score: number;
+          status: string;
+          workspace_id: string;
+        };
+        Insert: {
+          contact_a_id: string;
+          contact_b_id: string;
+          created_at?: string | null;
+          decided_at?: string | null;
+          id?: string;
+          reason: string;
+          score: number;
+          status?: string;
+          workspace_id: string;
+        };
+        Update: {
+          contact_a_id?: string;
+          contact_b_id?: string;
+          created_at?: string | null;
+          decided_at?: string | null;
+          id?: string;
+          reason?: string;
+          score?: number;
+          status?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "merge_suggestions_contact_a_id_fkey";
+            columns: ["contact_a_id"];
+            isOneToOne: false;
+            referencedRelation: "contacts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "merge_suggestions_contact_b_id_fkey";
+            columns: ["contact_b_id"];
+            isOneToOne: false;
+            referencedRelation: "contacts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "merge_suggestions_workspace_id_fkey";
+            columns: ["workspace_id"];
+            isOneToOne: false;
+            referencedRelation: "workspaces";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       messages: {
         Row: {
           attachment_urls: string[] | null;
@@ -452,6 +510,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      generate_merge_suggestions: {
+        Args: { p_min_similarity?: number; p_workspace_id: string };
+        Returns: number;
+      };
       get_decrypted_messages: {
         Args: { p_conversation_id: string };
         Returns: {
@@ -467,6 +529,14 @@ export type Database = {
           sent_at: string;
           status: string;
         }[];
+      };
+      merge_contacts: {
+        Args: { p_source_contact_id: string; p_target_contact_id: string };
+        Returns: string;
+      };
+      run_merge_suggestions_for_all_workspaces: {
+        Args: Record<PropertyKey, never>;
+        Returns: undefined;
       };
       upsert_contact_channel: {
         Args: {

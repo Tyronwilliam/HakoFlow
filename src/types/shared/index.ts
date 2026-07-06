@@ -4,6 +4,7 @@ export type { ConnectedAccountRow } from "./connected-accounts";
 export type { ContactChannelRow } from "./contact-channels";
 export type { ContactRow } from "./contacts";
 export type { ConversationRow } from "./conversations";
+export type { MergeSuggestionRow, MergeSuggestionStatus } from "./merge-suggestions";
 export type { MessageRow } from "./messages";
 export type { ReminderRow } from "./reminders";
 export type { UserRow } from "./users";
