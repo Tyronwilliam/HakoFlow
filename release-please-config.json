@@ -3,7 +3,9 @@
   "packages": {
     ".": {
       "release-type": "node",
-      "package-name": "hakoflow"
+      "package-name": "hakoflow",
+      "initial-version": "0.1.0",
+      "bump-minor-pre-major": true
     }
   }
 }
