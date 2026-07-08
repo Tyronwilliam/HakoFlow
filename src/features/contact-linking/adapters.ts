@@ -44,18 +44,22 @@ export interface RawLinkableContactRow {
   }[];
 }
 
-export interface LinkableChannel {
-  id: string;
-  provider: string;
-  externalId: string;
-  displayHandle: string | null;
-}
+export const linkableChannelSchema = z.object({
+  id: z.string(),
+  provider: z.string(),
+  externalId: z.string(),
+  displayHandle: z.string().nullable(),
+});
 
-export interface LinkableContact {
-  id: string;
-  name: string;
-  channels: LinkableChannel[];
-}
+export type LinkableChannel = z.infer<typeof linkableChannelSchema>;
+
+export const linkableContactSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  channels: z.array(linkableChannelSchema),
+});
+
+export type LinkableContact = z.infer<typeof linkableContactSchema>;
 
 export function toLinkableContact(raw: RawLinkableContactRow): LinkableContact {
   return {

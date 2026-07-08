@@ -50,14 +50,14 @@ export function ConversationListItem({ conversation }: ConversationListItemProps
             {formatDate(conversation.lastMessageAt)}
           </span>
         </div>
-        {conversation.contactHandle && (
-          <span className="mt-0.5 flex items-center gap-2 text-[12px]">
-            <ChannelBadge channel={conversation.channel} />
+        <span className="mt-0.5 flex items-center gap-2 text-[12px]">
+          <ChannelBadge channel={conversation.channel} />
+          {conversation.contactHandle && (
             <span className="text-muted-foreground/80 truncate text-[12px]">
               {conversation.contactHandle}
             </span>
-          </span>
-        )}
+          )}
+        </span>
         <Paragraph type="light">{conversation.lastMessagePreview}</Paragraph>
       </button>
     </li>
