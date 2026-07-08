@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/remind-claude-md-map.sh",
+            "timeout": 15,
+            "statusMessage": "Vérification de la carte CLAUDE.md..."
+          }
+        ]
+      }
+    ]
+  }
+}

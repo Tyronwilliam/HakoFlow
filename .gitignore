@@ -49,3 +49,4 @@ src/mocks/data/
 
 # generated openapi schema
 /api/
+.claude/settings.local.json
