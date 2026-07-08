@@ -37,7 +37,9 @@ export function ConversationListItem({ conversation }: ConversationListItemProps
         aria-label="open-conversation"
       >
         {isUnread && (
-          <span className="absolute top-1/2 right-4 h-2 w-2 -translate-y-1/2 rounded-full bg-red-700"></span>
+          <span className="absolute top-1/2 right-4 flex h-4 min-w-4 -translate-y-1/2 items-center justify-center rounded-full bg-red-700 px-1 text-[10px] font-semibold text-white">
+            {conversation.unreadCount}
+          </span>
         )}
 
         <div className="flex items-center justify-between">
@@ -48,14 +50,14 @@ export function ConversationListItem({ conversation }: ConversationListItemProps
             {formatDate(conversation.lastMessageAt)}
           </span>
         </div>
-        {conversation.contactHandle && (
-          <span className="mt-0.5 flex items-center gap-2 text-[12px]">
-            <ChannelBadge channel={conversation.channel} />
+        <span className="mt-0.5 flex items-center gap-2 text-[12px]">
+          <ChannelBadge channel={conversation.channel} />
+          {conversation.contactHandle && (
             <span className="text-muted-foreground/80 truncate text-[12px]">
               {conversation.contactHandle}
             </span>
-          </span>
-        )}
+          )}
+        </span>
         <Paragraph type="light">{conversation.lastMessagePreview}</Paragraph>
       </button>
     </li>

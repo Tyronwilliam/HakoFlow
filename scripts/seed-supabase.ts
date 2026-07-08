@@ -97,6 +97,7 @@ await sql`
     scenario.contactChannels,
     "id",
     "contact_id",
+    "workspace_id",
     "provider",
     "external_id",
     "display_handle",

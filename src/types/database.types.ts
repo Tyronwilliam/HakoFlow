@@ -107,6 +107,7 @@ export type Database = {
           external_id: string;
           id: string;
           provider: string;
+          workspace_id: string;
         };
         Insert: {
           contact_id: string;
@@ -114,6 +115,7 @@ export type Database = {
           external_id: string;
           id?: string;
           provider: string;
+          workspace_id: string;
         };
         Update: {
           contact_id?: string;
@@ -121,6 +123,7 @@ export type Database = {
           external_id?: string;
           id?: string;
           provider?: string;
+          workspace_id?: string;
         };
         Relationships: [
           {
@@ -128,6 +131,13 @@ export type Database = {
             columns: ["contact_id"];
             isOneToOne: false;
             referencedRelation: "contacts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "contact_channels_workspace_id_fkey";
+            columns: ["workspace_id"];
+            isOneToOne: false;
+            referencedRelation: "workspaces";
             referencedColumns: ["id"];
           },
         ];
@@ -229,6 +239,64 @@ export type Database = {
           },
           {
             foreignKeyName: "conversations_workspace_id_fkey";
+            columns: ["workspace_id"];
+            isOneToOne: false;
+            referencedRelation: "workspaces";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      merge_suggestions: {
+        Row: {
+          contact_a_id: string;
+          contact_b_id: string;
+          created_at: string | null;
+          decided_at: string | null;
+          id: string;
+          reason: string;
+          score: number;
+          status: string;
+          workspace_id: string;
+        };
+        Insert: {
+          contact_a_id: string;
+          contact_b_id: string;
+          created_at?: string | null;
+          decided_at?: string | null;
+          id?: string;
+          reason: string;
+          score: number;
+          status?: string;
+          workspace_id: string;
+        };
+        Update: {
+          contact_a_id?: string;
+          contact_b_id?: string;
+          created_at?: string | null;
+          decided_at?: string | null;
+          id?: string;
+          reason?: string;
+          score?: number;
+          status?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "merge_suggestions_contact_a_id_fkey";
+            columns: ["contact_a_id"];
+            isOneToOne: false;
+            referencedRelation: "contacts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "merge_suggestions_contact_b_id_fkey";
+            columns: ["contact_b_id"];
+            isOneToOne: false;
+            referencedRelation: "contacts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "merge_suggestions_workspace_id_fkey";
             columns: ["workspace_id"];
             isOneToOne: false;
             referencedRelation: "workspaces";
@@ -442,8 +510,17 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      generate_merge_suggestions: {
+        Args: { p_min_similarity?: number; p_workspace_id: string };
+        Returns: number;
+      };
       get_decrypted_messages: {
-        Args: { p_conversation_id: string };
+        Args: {
+          p_conversation_id: string;
+          p_order?: string;
+          p_start?: number;
+          p_stop?: number;
+        };
         Returns: {
           attachment_urls: string[];
           channel: string;
@@ -457,6 +534,45 @@ export type Database = {
           sent_at: string;
           status: string;
         }[];
+      };
+      link_contact_channel: {
+        Args: { p_contact_channel_id: string; p_target_contact_id: string };
+        Returns: string;
+      };
+      list_contact_conversation_groups: {
+        Args: {
+          p_start_index?: number;
+          p_stop_index?: number;
+          p_workspace_id: string;
+        };
+        Returns: {
+          channels: string[];
+          contact_name: string;
+          conversations: Json;
+          group_key: string;
+          last_message_at: string;
+          unread_conversations: number;
+        }[];
+      };
+      merge_contacts: {
+        Args: { p_source_contact_id: string; p_target_contact_id: string };
+        Returns: string;
+      };
+      run_merge_suggestions_for_all_workspaces: {
+        Args: never;
+        Returns: undefined;
+      };
+      show_limit: { Args: never; Returns: number };
+      show_trgm: { Args: { "": string }; Returns: string[] };
+      upsert_contact_channel: {
+        Args: {
+          p_contact_name?: string;
+          p_display_handle?: string;
+          p_external_id: string;
+          p_provider: string;
+          p_workspace_id: string;
+        };
+        Returns: string;
       };
     };
     Enums: {

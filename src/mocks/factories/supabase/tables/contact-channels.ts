@@ -11,6 +11,7 @@ export function createContactChannelRow(
   return {
     id: faker.string.uuid(),
     contact_id: faker.string.uuid(),
+    workspace_id: faker.string.uuid(),
     provider,
     external_id: faker.string.alphanumeric(16),
     display_handle: provider === "gmail" ? faker.internet.email() : faker.internet.username(),

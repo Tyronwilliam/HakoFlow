@@ -7,8 +7,8 @@ import {
   conversationsQueryKey,
   conversationUpdateMutation,
 } from "@/features/inbox/queries";
-import type { ConversationListItem } from "@/features/inbox/adapters";
-import { conversationListItemSchema } from "@/features/inbox/adapters";
+import type { ContactConversationGroup } from "@/features/inbox/adapters";
+import { contactConversationGroupSchema } from "@/features/inbox/adapters";
 import { parseApiResponse } from "@/lib/api";
 
 type ConversationPage = Awaited<
@@ -19,7 +19,7 @@ type ListConversationsOptions = Partial<
   UseInfiniteQueryOptions<
     ConversationPage,
     Error,
-    ConversationListItem[],
+    ContactConversationGroup[],
     ReturnType<typeof conversationsQueryKey>,
     number
   >
@@ -31,8 +31,8 @@ export const useListConversations = (options?: ListConversationsOptions) => {
     ...options,
     select: (data) =>
       parseApiResponse({
-        schema: conversationListItemSchema.array(),
-        data: data.pages.flatMap((p: ConversationPage) => p.conversations),
+        schema: contactConversationGroupSchema.array(),
+        data: data.pages.flatMap((p: ConversationPage) => p.groups),
         context: "conversations.list",
       }),
   });
@@ -65,9 +65,20 @@ export const useUpdateConversation = (options?: UpdateConversationOptions) => {
           ...old,
           pages: old.pages.map((page) => ({
             ...page,
-            conversations: page.conversations.map((conv) =>
-              conv.id === variables.id ? { ...conv, unreadCount: 0 } : conv,
-            ),
+            groups: page.groups.map((group) => {
+              if (!group.conversations.some((conv) => conv.id === variables.id)) return group;
+
+              const conversations = group.conversations.map((conv) =>
+                conv.id === variables.id ? { ...conv, unreadCount: 0 } : conv,
+              );
+
+              return {
+                ...group,
+                conversations,
+                unreadConversationsCount: conversations.filter((conv) => conv.unreadCount > 0)
+                  .length,
+              };
+            }),
           })),
         };
       });
