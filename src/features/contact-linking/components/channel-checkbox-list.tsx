@@ -1,5 +1,3 @@
-"use client";
-
 import { Label } from "@/components/ui/label";
 import { LinkableChannel } from "@/features/contact-linking/adapters";
 

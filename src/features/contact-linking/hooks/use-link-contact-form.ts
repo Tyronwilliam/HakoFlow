@@ -1,5 +1,3 @@
-"use client";
-
 import { useMemo, useState } from "react";
 import { LinkableContact } from "@/features/contact-linking/adapters";
 import { useLinkChannels } from "@/features/contact-linking/hooks/use-link-channels";
