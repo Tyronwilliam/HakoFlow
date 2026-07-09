@@ -51,3 +51,28 @@ Chaque feature suit le pattern `api.ts` (constantes d'URL) / `adapters` (raw DB 
 - Couleurs : uniquement les variables du thème (`docs/theme.md`), rien en dur
 - Commits : Conventional Commits (commitlint), ex. `fix(contact-linking): ...`
 - Tests : factories/handlers dans `src/mocks/` (voir `docs/vitest.md`)
+
+Ce que fait l'app
+
+Une inbox unifiée multi-canaux qui :
+
+1. Ingère les messages via webhooks (Gmail, Discord, Slack → api/webhooks/)
+2. Rattache chaque message à un contact/conversation, avec un identifiant natif par canal
+   (channels/\*/identity.ts)
+3. Détecte les doublons — si une même personne existe sous plusieurs canaux, l'app suggère
+   de fusionner les identités (contact-linking/, merge-suggestion-\*)
+4. Regroupe les conversations par contact plutôt que par canal (inbox/contact-group-\*) —
+   vision "personne" plutôt que "boîte mail"
+5. Assiste avec l'IA (Claude via src/lib/anthropic.ts) : résumé de fil de discussion,
+   suggestion de réponse (features/ai/)
+6. Permet le suivi via des rappels (reminders/) pour ne pas laisser une conversation sans
+   réponse
+7. Donne une vue stats et contacts consolidée
+
+En résumé
+
+C'est un CRM léger / helpdesk unifié pour indépendants et petites équipes, positionné entre
+un simple client mail et un vrai CRM lourd (type Hubspot/Intercom) — avec le liant IA pour
+réduire le temps de traitement humain. La proposition de valeur clé, c'est la fusion
+d'identité cross-canal : ne plus voir "un ticket Discord" et "un email" comme deux
+personnes différentes, mais comme un seul contact avec un historique continu.
