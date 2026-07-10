@@ -46,6 +46,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const { data: mergedContactId, error: mergeError } = await supabase.rpc("merge_contacts", {
     p_target_contact_id: body.keepContactId,
     p_source_contact_id: sourceContactId,
+    p_merge_suggestion_id: suggestionId,
   });
 
   if (mergeError) {
