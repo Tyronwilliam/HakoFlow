@@ -1,7 +1,9 @@
 import { API_CONTACT_LINKING } from "@/features/contact-linking/api";
 import {
+  RawContactMergeRow,
   RawLinkableContactRow,
   RawMergeSuggestionRow,
+  toContactMerge,
   toLinkableContact,
   toMergeSuggestion,
 } from "@/features/contact-linking/adapters";
@@ -13,6 +15,10 @@ type MergeSuggestionsApiResponse = {
 
 type LinkableContactsApiResponse = {
   contacts: RawLinkableContactRow[];
+};
+
+type ContactMergesApiResponse = {
+  merges: RawContactMergeRow[];
 };
 
 export const mergeSuggestionsQueryKey = () => ["merge-suggestions"] as const;
@@ -77,5 +83,18 @@ export const linkChannelsMutation = () => ({
       method: "POST",
       body: JSON.stringify({ contactChannelIds, targetContactId }),
     });
+  },
+});
+
+export const contactMergesQueryKey = () => ["contact-merges"] as const;
+
+export const contactMergesQueryOptions = () => ({
+  queryKey: contactMergesQueryKey(),
+  queryFn: async () => {
+    const data = await fetchApi<ContactMergesApiResponse>(
+      API_CONTACT_LINKING.LIST_CONTACT_MERGES(),
+    );
+
+    return data.merges.map(toContactMerge);
   },
 });

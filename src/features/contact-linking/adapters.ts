@@ -73,3 +73,39 @@ export function toLinkableContact(raw: RawLinkableContactRow): LinkableContact {
     })),
   };
 }
+
+export interface RawContactMergeRow {
+  id: string;
+  merged_at: string;
+  moved_contact_channel_ids: string[];
+  moved_conversation_ids: string[];
+  target_contact: { id: string; name: string } | null;
+  source_contact: { id: string; name: string } | null;
+}
+
+const contactMergeContactSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+});
+
+export const contactMergeSchema = z.object({
+  id: z.string(),
+  mergedAt: z.string(),
+  targetContact: contactMergeContactSchema,
+  sourceContact: contactMergeContactSchema,
+  movedContactChannelsCount: z.number(),
+  movedConversationsCount: z.number(),
+});
+
+export type ContactMerge = z.infer<typeof contactMergeSchema>;
+
+export function toContactMerge(raw: RawContactMergeRow): ContactMerge {
+  return {
+    id: raw.id,
+    mergedAt: raw.merged_at,
+    targetContact: raw.target_contact ?? { id: "", name: "Contact inconnu" },
+    sourceContact: raw.source_contact ?? { id: "", name: "Contact inconnu" },
+    movedContactChannelsCount: raw.moved_contact_channel_ids.length,
+    movedConversationsCount: raw.moved_conversation_ids.length,
+  };
+}
