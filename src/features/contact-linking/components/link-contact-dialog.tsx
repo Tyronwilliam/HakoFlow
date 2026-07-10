@@ -20,9 +20,9 @@ export function LinkContactDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button variant="ghost" size="icon" />}>
+      <DialogTrigger render={<Button size="sm" />}>
         <Link2 />
-        <span className="sr-only">Associer un contact</span>
+        Associer un canal
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>

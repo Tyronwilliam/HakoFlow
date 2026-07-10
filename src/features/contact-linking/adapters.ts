@@ -77,6 +77,7 @@ export function toLinkableContact(raw: RawLinkableContactRow): LinkableContact {
 export interface RawContactMergeRow {
   id: string;
   merged_at: string;
+  undone_at: string | null;
   moved_contact_channel_ids: string[];
   moved_conversation_ids: string[];
   target_contact: { id: string; name: string } | null;
@@ -91,6 +92,7 @@ const contactMergeContactSchema = z.object({
 export const contactMergeSchema = z.object({
   id: z.string(),
   mergedAt: z.string(),
+  undoneAt: z.string().nullable(),
   targetContact: contactMergeContactSchema,
   sourceContact: contactMergeContactSchema,
   movedContactChannelsCount: z.number(),
@@ -103,6 +105,7 @@ export function toContactMerge(raw: RawContactMergeRow): ContactMerge {
   return {
     id: raw.id,
     mergedAt: raw.merged_at,
+    undoneAt: raw.undone_at,
     targetContact: raw.target_contact ?? { id: "", name: "Contact inconnu" },
     sourceContact: raw.source_contact ?? { id: "", name: "Contact inconnu" },
     movedContactChannelsCount: raw.moved_contact_channel_ids.length,

@@ -1,12 +1,15 @@
 import postgres from "postgres";
 import { createWorkspaceScenario } from "@/mocks/factories";
+import type { DuplicateContactPair } from "@/mocks/factories/supabase/scenario";
 
 /**
  * Peuple le projet Supabase lié avec un scénario réaliste (contacts,
- * contact_channels, conversations, messages) pour un workspace donné.
+ * contact_channels, conversations, messages) pour un workspace donné, plus
+ * quelques paires de contacts quasi-homonymes pour exercer les suggestions
+ * de fusion et l'historique (fusion active + fusion annulée).
  *
  * Usage:
- *   bun run seed-supabase --email=<email-de-connexion> [--contacts=5] [--reset]
+ *   bun run seed-supabase --email=<email-de-connexion> [--contacts=5] [--duplicates=3] [--reset]
  *
  * Le script connecte directement à Postgres (SUPABASE_DATABASE_PASSWORD)
  * car `messages.content` est chiffré via pgp_sym_encrypt (voir
@@ -27,6 +30,7 @@ if (!email) {
 }
 
 const contactCount = Number(getArg("contacts") ?? 5);
+const duplicatePairCount = Number(getArg("duplicates") ?? 3);
 const reset = process.argv.includes("--reset");
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -75,7 +79,7 @@ if (reset) {
   await sql`DELETE FROM contacts WHERE workspace_id = ${workspace.id}`;
 }
 
-const scenario = createWorkspaceScenario(workspace.id, contactCount);
+const scenario = createWorkspaceScenario(workspace.id, contactCount, duplicatePairCount);
 
 await sql`
   INSERT INTO contacts ${sql(
@@ -141,5 +145,69 @@ console.log(
     `${scenario.contactChannels.length} contact_channels, ${scenario.conversations.length} conversations, ` +
     `${scenario.messages.length} messages.`,
 );
+
+// Détecte les paires de doublons via la similarité de noms (pg_trgm) —
+// alimente `merge_suggestions` avec des candidats réels plutôt que de
+// dépendre du hasard des noms générés par faker sur le reste du scénario.
+const [{ generate_merge_suggestions: suggestionCount }] = await sql<
+  { generate_merge_suggestions: number }[]
+>`SELECT generate_merge_suggestions(${workspace.id})`;
+
+console.log(`Generated ${suggestionCount} merge suggestions.`);
+
+// Les RPC merge_contacts/undo_merge_contacts vérifient explicitement
+// `workspaces.user_id = auth.uid()` — on simule ce contexte d'auth via
+// set_config sur la transaction, comme le ferait PostgREST avec un vrai JWT.
+const jwtClaims = JSON.stringify({ sub: user.id });
+
+async function findPendingSuggestionId(pair: DuplicateContactPair): Promise<string | undefined> {
+  const [suggestion] = await sql<{ id: string }[]>`
+    SELECT id FROM merge_suggestions
+    WHERE workspace_id = ${workspace.id}
+      AND status = 'pending'
+      AND (
+        (contact_a_id = ${pair.a.id} AND contact_b_id = ${pair.b.id})
+        OR (contact_a_id = ${pair.b.id} AND contact_b_id = ${pair.a.id})
+      )
+  `;
+  return suggestion?.id;
+}
+
+// Paire 0 : fusionnée et conservée telle quelle (historique "actif").
+// Paire 1 : fusionnée puis annulée (historique "annulé", contact source
+// restauré). Les paires suivantes restent de simples suggestions en attente.
+const [pairMerged, pairUndone] = scenario.duplicatePairs;
+
+if (pairMerged) {
+  const suggestionId = await findPendingSuggestionId(pairMerged);
+
+  await sql.begin(async (tx) => {
+    await tx`SELECT set_config('request.jwt.claims', ${jwtClaims}, true)`;
+    await tx`SELECT merge_contacts(${pairMerged.a.id}, ${pairMerged.b.id}, ${suggestionId ?? null})`;
+  });
+  console.log(`Merged duplicate pair "${pairMerged.a.name}" -> kept merged.`);
+}
+
+if (pairUndone) {
+  const suggestionId = await findPendingSuggestionId(pairUndone);
+
+  await sql.begin(async (tx) => {
+    await tx`SELECT set_config('request.jwt.claims', ${jwtClaims}, true)`;
+    await tx`SELECT merge_contacts(${pairUndone.a.id}, ${pairUndone.b.id}, ${suggestionId ?? null})`;
+  });
+
+  const [{ id: mergeId }] = await sql<{ id: string }[]>`
+    SELECT id FROM contact_merges
+    WHERE target_contact_id = ${pairUndone.a.id} AND source_contact_id = ${pairUndone.b.id}
+    ORDER BY merged_at DESC
+    LIMIT 1
+  `;
+
+  await sql.begin(async (tx) => {
+    await tx`SELECT set_config('request.jwt.claims', ${jwtClaims}, true)`;
+    await tx`SELECT undo_merge_contacts(${mergeId})`;
+  });
+  console.log(`Merged then undid duplicate pair "${pairUndone.a.name}".`);
+}
 
 await sql.end();
