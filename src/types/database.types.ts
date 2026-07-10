@@ -717,7 +717,11 @@ export type Database = {
         }[];
       };
       merge_contacts: {
-        Args: { p_source_contact_id: string; p_target_contact_id: string };
+        Args: {
+          p_merge_suggestion_id?: string;
+          p_source_contact_id: string;
+          p_target_contact_id: string;
+        };
         Returns: string;
       };
       run_merge_suggestions_for_all_workspaces: {
