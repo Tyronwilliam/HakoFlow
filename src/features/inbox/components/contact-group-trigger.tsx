@@ -1,0 +1,64 @@
+"use client";
+import { ChevronDown } from "lucide-react";
+import { ChannelBadge } from "@/components/shared/channel-badge";
+import { Paragraph } from "@/components/shared/Text/Paragraph";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { CollapsibleTrigger } from "@/components/ui/collapsible";
+import { formatDate } from "@/lib/date";
+import { getInitials } from "@/lib/initials";
+import { cn } from "@/lib/utils";
+import type { ContactConversationGroup } from "@/features/inbox/adapters";
+
+interface ContactGroupTriggerProps {
+  group: ContactConversationGroup;
+  open: boolean;
+}
+
+export function ContactGroupTrigger({ group, open }: ContactGroupTriggerProps) {
+  const isUnread = group.unreadConversationsCount > 0;
+  const unreadLabel = `${group.unreadConversationsCount} conversation${group.unreadConversationsCount > 1 ? "s" : ""} non lue${group.unreadConversationsCount > 1 ? "s" : ""}`;
+
+  return (
+    <CollapsibleTrigger
+      className="hover:bg-accent hover:text-accent-foreground flex w-full cursor-pointer items-start gap-3 px-4 py-3 text-left transition-colors"
+      aria-label="toggle-contact-conversations"
+    >
+      <ChevronDown
+        className={cn(
+          "text-muted-foreground mt-1 h-3.5 w-3.5 shrink-0 transition-transform",
+          !open && "-rotate-90",
+        )}
+      />
+      <Avatar size="sm" className="mt-0.5">
+        <AvatarFallback>{getInitials(group.contactName)}</AvatarFallback>
+      </Avatar>
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <div className="flex items-center gap-2">
+          <Paragraph type="regular" className={isUnread ? "font-semibold" : "text-foreground/90"}>
+            {group.contactName}
+          </Paragraph>
+          <span
+            className={cn(
+              "bg-secondary text-secondary-foreground flex h-4.5 min-w-4.75 shrink-0 items-center justify-center rounded-full px-1 text-[11px] font-semibold",
+              isUnread && "text-unread",
+            )}
+          >
+            {group.conversations.length}
+          </span>
+          <span className="text-muted-foreground ml-auto shrink-0 text-[11px]">
+            {formatDate(group.lastMessageAt)}
+          </span>
+        </div>
+        <span className="mt-0.5 flex flex-wrap items-center gap-1.5">
+          {group.channels.map((channel) => (
+            <ChannelBadge key={channel} channel={channel} />
+          ))}
+        </span>
+
+        {isUnread && (
+          <span className="text-unread mt-0.5 text-[11px] font-semibold">{unreadLabel}</span>
+        )}
+      </div>
+    </CollapsibleTrigger>
+  );
+}
