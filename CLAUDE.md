@@ -19,7 +19,7 @@ Chaque feature suit le pattern `api.ts` (constantes d'URL) / `adapters` (raw DB 
 
 - `inbox/` — liste des conversations, groupement par contact (`use-conversations`, `conversation-list`, `contact-group-*`)
 - `message/` — feed de messages d'une conversation (`MessageFeed`, `use-messages`)
-- `contact-linking/` — rattachement de canaux à un contact + suggestions de fusion (`link-contact-dialog`, `merge-suggestion-*`, hooks `use-link-*`, `use-merge-suggestion*`)
+- `contact-linking/` — rattachement de canaux à un contact + suggestions de fusion + historique des fusions (`link-contact-dialog`, `merge-suggestion-*`, hooks `use-link-*`, `use-merge-suggestion*`, `use-contact-merges`)
 - `contacts/` — liste des contacts
 - `reminders/` — rappels (écriture via Server Actions, pas de route API)
 - `channels/` — intégrations par canal : un dossier par canal (`gmail/`, `discord/`, `slack/`) avec `client.ts` (appels API externes), `parser.ts` (payload webhook → message), `identity.ts` (identifiant natif du contact), `types.ts`. Commun : `shared/` (`ContactIdentity`, `normalize-email`)
@@ -30,7 +30,7 @@ Chaque feature suit le pattern `api.ts` (constantes d'URL) / `adapters` (raw DB 
 
 - `(app)/` — pages authentifiées : `inbox` (+ `inbox/[id]` = détail conversation), `contacts`, `reminders`, `settings`, `stats`
 - `(auth)/` — `login` + `callback` OAuth
-- `api/` — route handlers GET (conversations, messages, contacts, contact-linking, merge-suggestions, reminders, ai) : ils font le `select` Supabase puis délèguent aux adapters de la feature. `api/webhooks/{discord,slack,stripe}` — ingestion entrante
+- `api/` — route handlers GET (conversations, messages, contacts, contact-linking, contact-merges, merge-suggestions, reminders, ai) : ils font le `select` Supabase puis délèguent aux adapters de la feature. `api/webhooks/{discord,slack,stripe}` — ingestion entrante
 - `src/proxy.ts` — proxy Next.js 16 (ex-middleware), rafraîchit la session Supabase via `src/lib/supabase/proxy.ts`
 
 ## Partagé

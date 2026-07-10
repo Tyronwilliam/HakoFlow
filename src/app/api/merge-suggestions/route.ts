@@ -24,6 +24,10 @@ export async function GET() {
     return NextResponse.json({ suggestions: [] });
   }
 
+  // contacts_active + !inner: filet de sécurité HAK-78 — exclut toute
+  // suggestion dont contact_a ou contact_b est soft-deleted, y compris les
+  // lignes créées avant ce correctif (le nettoyage à la source vit dans
+  // HAK-77 / merge_contacts, mais ne couvre pas les données historiques).
   const { data, error } = await supabase
     .from("merge_suggestions")
     .select(
@@ -31,8 +35,8 @@ export async function GET() {
       id,
       score,
       reason,
-      contact_a:contacts!merge_suggestions_contact_a_id_fkey ( id, name ),
-      contact_b:contacts!merge_suggestions_contact_b_id_fkey ( id, name )
+      contact_a:contacts_active!merge_suggestions_contact_a_id_fkey!inner ( id, name ),
+      contact_b:contacts_active!merge_suggestions_contact_b_id_fkey!inner ( id, name )
     `,
     )
     .eq("workspace_id", workspace.id)
