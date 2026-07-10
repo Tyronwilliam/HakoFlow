@@ -730,6 +730,10 @@ export type Database = {
       };
       show_limit: { Args: never; Returns: number };
       show_trgm: { Args: { "": string }; Returns: string[] };
+      undo_merge_contacts: {
+        Args: { p_merge_id: string };
+        Returns: string;
+      };
       upsert_contact_channel: {
         Args: {
           p_contact_name?: string;
