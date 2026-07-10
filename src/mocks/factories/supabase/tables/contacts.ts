@@ -10,6 +10,7 @@ export function createContactRow(overrides: Partial<ContactRow> = {}): ContactRo
     tags: faker.helpers.arrayElements(["prospect_chaud", "client", "froid"], { min: 0, max: 2 }),
     blacklisted: false,
     enriched: false,
+    deleted_at: null,
     created_at: faker.date.past().toISOString(),
     updated_at: faker.date.recent().toISOString(),
     ...overrides,

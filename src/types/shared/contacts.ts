@@ -1,6 +1,7 @@
 export interface ContactRow {
   blacklisted: boolean;
   created_at: string;
+  deleted_at: string | null;
   enriched: boolean;
   id: string;
   name: string;

@@ -25,7 +25,7 @@ export async function GET() {
   }
 
   const { data, error } = await supabase
-    .from("contacts")
+    .from("contacts_active")
     .select("id, name, contact_channels ( id, provider, external_id, display_handle )")
     .eq("workspace_id", workspace.id)
     .order("name");

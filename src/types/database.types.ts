@@ -134,6 +134,13 @@ export type Database = {
             referencedColumns: ["id"];
           },
           {
+            foreignKeyName: "contact_channels_contact_id_fkey";
+            columns: ["contact_id"];
+            isOneToOne: false;
+            referencedRelation: "contacts_active";
+            referencedColumns: ["id"];
+          },
+          {
             foreignKeyName: "contact_channels_workspace_id_fkey";
             columns: ["workspace_id"];
             isOneToOne: false;
@@ -146,6 +153,7 @@ export type Database = {
         Row: {
           blacklisted: boolean | null;
           created_at: string | null;
+          deleted_at: string | null;
           enriched: boolean | null;
           id: string;
           name: string;
@@ -157,6 +165,7 @@ export type Database = {
         Insert: {
           blacklisted?: boolean | null;
           created_at?: string | null;
+          deleted_at?: string | null;
           enriched?: boolean | null;
           id?: string;
           name: string;
@@ -168,6 +177,7 @@ export type Database = {
         Update: {
           blacklisted?: boolean | null;
           created_at?: string | null;
+          deleted_at?: string | null;
           enriched?: boolean | null;
           id?: string;
           name?: string;
@@ -238,6 +248,13 @@ export type Database = {
             referencedColumns: ["id"];
           },
           {
+            foreignKeyName: "conversations_contact_id_fkey";
+            columns: ["contact_id"];
+            isOneToOne: false;
+            referencedRelation: "contacts_active";
+            referencedColumns: ["id"];
+          },
+          {
             foreignKeyName: "conversations_workspace_id_fkey";
             columns: ["workspace_id"];
             isOneToOne: false;
@@ -289,10 +306,24 @@ export type Database = {
             referencedColumns: ["id"];
           },
           {
+            foreignKeyName: "merge_suggestions_contact_a_id_fkey";
+            columns: ["contact_a_id"];
+            isOneToOne: false;
+            referencedRelation: "contacts_active";
+            referencedColumns: ["id"];
+          },
+          {
             foreignKeyName: "merge_suggestions_contact_b_id_fkey";
             columns: ["contact_b_id"];
             isOneToOne: false;
             referencedRelation: "contacts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "merge_suggestions_contact_b_id_fkey";
+            columns: ["contact_b_id"];
+            isOneToOne: false;
+            referencedRelation: "contacts_active";
             referencedColumns: ["id"];
           },
           {
@@ -507,7 +538,53 @@ export type Database = {
       };
     };
     Views: {
-      [_ in never]: never;
+      contacts_active: {
+        Row: {
+          blacklisted: boolean | null;
+          created_at: string | null;
+          deleted_at: string | null;
+          enriched: boolean | null;
+          id: string | null;
+          name: string | null;
+          notes: string | null;
+          tags: string[] | null;
+          updated_at: string | null;
+          workspace_id: string | null;
+        };
+        Insert: {
+          blacklisted?: boolean | null;
+          created_at?: string | null;
+          deleted_at?: string | null;
+          enriched?: boolean | null;
+          id?: string | null;
+          name?: string | null;
+          notes?: string | null;
+          tags?: string[] | null;
+          updated_at?: string | null;
+          workspace_id?: string | null;
+        };
+        Update: {
+          blacklisted?: boolean | null;
+          created_at?: string | null;
+          deleted_at?: string | null;
+          enriched?: boolean | null;
+          id?: string | null;
+          name?: string | null;
+          notes?: string | null;
+          tags?: string[] | null;
+          updated_at?: string | null;
+          workspace_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "contacts_workspace_id_fkey";
+            columns: ["workspace_id"];
+            isOneToOne: false;
+            referencedRelation: "workspaces";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Functions: {
       generate_merge_suggestions: {
