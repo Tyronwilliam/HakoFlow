@@ -2,6 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
+  contactMergesQueryKey,
   ignoreMergeSuggestionMutation,
   mergeSuggestionMutation,
   mergeSuggestionsQueryKey,
@@ -21,6 +22,7 @@ export function useMergeSuggestionActions() {
     ...mergeSuggestionMutation(),
     onSuccess: () => {
       invalidate();
+      queryClient.invalidateQueries({ queryKey: contactMergesQueryKey() });
       queryClient.invalidateQueries({ queryKey: ["contacts"] });
       queryClient.invalidateQueries({ queryKey: conversationsQueryKey() });
     },
