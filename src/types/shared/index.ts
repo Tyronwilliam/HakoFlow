@@ -2,6 +2,7 @@ export type { ChannelListType } from "./channels";
 export type { AiSuggestionRow } from "./ai-suggestions";
 export type { ConnectedAccountRow } from "./connected-accounts";
 export type { ContactChannelRow } from "./contact-channels";
+export type { ContactMergeRow } from "./contact-merges";
 export type { ContactRow } from "./contacts";
 export type { ConversationRow } from "./conversations";
 export type { MergeSuggestionRow, MergeSuggestionStatus } from "./merge-suggestions";

@@ -4,4 +4,6 @@ export const API_CONTACT_LINKING = {
   MERGE_SUGGESTION: (id: string) => `/api/merge-suggestions/${id}`,
   LIST_LINKABLE_CONTACTS: () => `/api/contact-linking/contacts`,
   LINK_CHANNELS: () => `/api/contact-linking/link`,
+  LIST_CONTACT_MERGES: () => `/api/contact-merges`,
+  LIST_CONTACT_LINK_HISTORY: () => `/api/contact-linking/history`,
 } as const;

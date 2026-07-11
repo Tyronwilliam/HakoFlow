@@ -1,7 +1,11 @@
 import { API_CONTACT_LINKING } from "@/features/contact-linking/api";
 import {
+  RawContactLinkHistoryRow,
+  RawContactMergeRow,
   RawLinkableContactRow,
   RawMergeSuggestionRow,
+  toContactLinkHistory,
+  toContactMerge,
   toLinkableContact,
   toMergeSuggestion,
 } from "@/features/contact-linking/adapters";
@@ -13,6 +17,14 @@ type MergeSuggestionsApiResponse = {
 
 type LinkableContactsApiResponse = {
   contacts: RawLinkableContactRow[];
+};
+
+type ContactMergesApiResponse = {
+  merges: RawContactMergeRow[];
+};
+
+type ContactLinkHistoryApiResponse = {
+  history: RawContactLinkHistoryRow[];
 };
 
 export const mergeSuggestionsQueryKey = () => ["merge-suggestions"] as const;
@@ -77,5 +89,31 @@ export const linkChannelsMutation = () => ({
       method: "POST",
       body: JSON.stringify({ contactChannelIds, targetContactId }),
     });
+  },
+});
+
+export const contactMergesQueryKey = () => ["contact-merges"] as const;
+
+export const contactMergesQueryOptions = () => ({
+  queryKey: contactMergesQueryKey(),
+  queryFn: async () => {
+    const data = await fetchApi<ContactMergesApiResponse>(
+      API_CONTACT_LINKING.LIST_CONTACT_MERGES(),
+    );
+
+    return data.merges.map(toContactMerge);
+  },
+});
+
+export const contactLinkHistoryQueryKey = () => ["contact-linking", "history"] as const;
+
+export const contactLinkHistoryQueryOptions = () => ({
+  queryKey: contactLinkHistoryQueryKey(),
+  queryFn: async () => {
+    const data = await fetchApi<ContactLinkHistoryApiResponse>(
+      API_CONTACT_LINKING.LIST_CONTACT_LINK_HISTORY(),
+    );
+
+    return data.history.map(toContactLinkHistory);
   },
 });
