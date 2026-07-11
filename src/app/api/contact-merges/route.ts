@@ -34,6 +34,7 @@ export async function GET() {
       `
       id,
       merged_at,
+      undone_at,
       moved_contact_channel_ids,
       moved_conversation_ids,
       target_contact:contacts_active!contact_merges_target_contact_id_fkey ( id, name ),

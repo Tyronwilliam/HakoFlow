@@ -149,6 +149,85 @@ export type Database = {
           },
         ];
       };
+      contact_link_history: {
+        Row: {
+          contact_channel_id: string;
+          id: string;
+          linked_at: string;
+          moved_conversation_ids: string[];
+          provider: string;
+          source_contact_id: string;
+          target_contact_id: string;
+          undone_at: string | null;
+          workspace_id: string;
+        };
+        Insert: {
+          contact_channel_id: string;
+          id?: string;
+          linked_at?: string;
+          moved_conversation_ids?: string[];
+          provider: string;
+          source_contact_id: string;
+          target_contact_id: string;
+          undone_at?: string | null;
+          workspace_id: string;
+        };
+        Update: {
+          contact_channel_id?: string;
+          id?: string;
+          linked_at?: string;
+          moved_conversation_ids?: string[];
+          provider?: string;
+          source_contact_id?: string;
+          target_contact_id?: string;
+          undone_at?: string | null;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "contact_link_history_contact_channel_id_fkey";
+            columns: ["contact_channel_id"];
+            isOneToOne: false;
+            referencedRelation: "contact_channels";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "contact_link_history_source_contact_id_fkey";
+            columns: ["source_contact_id"];
+            isOneToOne: false;
+            referencedRelation: "contacts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "contact_link_history_source_contact_id_fkey";
+            columns: ["source_contact_id"];
+            isOneToOne: false;
+            referencedRelation: "contacts_active";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "contact_link_history_target_contact_id_fkey";
+            columns: ["target_contact_id"];
+            isOneToOne: false;
+            referencedRelation: "contacts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "contact_link_history_target_contact_id_fkey";
+            columns: ["target_contact_id"];
+            isOneToOne: false;
+            referencedRelation: "contacts_active";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "contact_link_history_workspace_id_fkey";
+            columns: ["workspace_id"];
+            isOneToOne: false;
+            referencedRelation: "workspaces";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       contact_merges: {
         Row: {
           id: string;
@@ -730,10 +809,11 @@ export type Database = {
       };
       show_limit: { Args: never; Returns: number };
       show_trgm: { Args: { "": string }; Returns: string[] };
-      undo_merge_contacts: {
-        Args: { p_merge_id: string };
+      undo_link_contact_channel: {
+        Args: { p_link_history_id: string };
         Returns: string;
       };
+      undo_merge_contacts: { Args: { p_merge_id: string }; Returns: string };
       upsert_contact_channel: {
         Args: {
           p_contact_name?: string;
