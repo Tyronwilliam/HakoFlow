@@ -19,7 +19,7 @@ Chaque feature suit le pattern `api.ts` (constantes d'URL) / `adapters` (raw DB 
 
 - `inbox/` — liste des conversations, groupement par contact (`use-conversations`, `conversation-list`, `contact-group-*`)
 - `message/` — feed de messages d'une conversation (`MessageFeed`, `use-messages`)
-- `contact-linking/` — rattachement de canaux à un contact + suggestions de fusion + historique des fusions avec undo (`link-contact-dialog`, `merge-suggestion-*`, `merge-history-*`, `contact-management-tabs`, hooks `use-link-*`, `use-merge-suggestion*`, `use-contact-merges`, `use-undo-merge`, Server Action `undo-merge`)
+- `contact-linking/` — rattachement de canaux à un contact + suggestions de fusion + historique des fusions et des rattachements, tous deux annulables (`link-contact-dialog`, `merge-suggestion-*`, `merge-history-*`, `link-history-*`, `contact-management-tabs`, hooks `use-link-*`, `use-merge-suggestion*`, `use-contact-merges`, `use-undo-merge`, `use-contact-link-history`, `use-undo-link`, Server Actions `undo-merge`, `undo-link`)
 - `contacts/` — liste des contacts
 - `reminders/` — rappels (écriture via Server Actions, pas de route API)
 - `channels/` — intégrations par canal : un dossier par canal (`gmail/`, `discord/`, `slack/`) avec `client.ts` (appels API externes), `parser.ts` (payload webhook → message), `identity.ts` (identifiant natif du contact), `types.ts`. Commun : `shared/` (`ContactIdentity`, `normalize-email`)

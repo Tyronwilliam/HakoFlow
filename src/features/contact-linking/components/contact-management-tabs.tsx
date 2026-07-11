@@ -6,15 +6,18 @@ import { Badge } from "@/components/ui/badge";
 import { LinkContactDialog } from "@/features/contact-linking/components/link-contact-dialog";
 import { MergeSuggestionsList } from "@/features/contact-linking/components/merge-suggestions-list";
 import { MergeHistoryList } from "@/features/contact-linking/components/merge-history-list";
+import { LinkHistoryList } from "@/features/contact-linking/components/link-history-list";
 import { useMergeSuggestions } from "@/features/contact-linking/hooks/use-merge-suggestions";
 import { useContactMerges } from "@/features/contact-linking/hooks/use-contact-merges";
+import { useContactLinkHistory } from "@/features/contact-linking/hooks/use-contact-link-history";
 
 export function ContactManagementTabs() {
   const suggestions = useMergeSuggestions();
   const merges = useContactMerges();
+  const linkHistory = useContactLinkHistory();
 
   const suggestionCount = suggestions.data?.length ?? 0;
-  const mergeCount = merges.data?.length ?? 0;
+  const historyCount = (merges.data?.length ?? 0) + (linkHistory.data?.length ?? 0);
 
   return (
     <Tabs defaultValue="link" className={"w-full"}>
@@ -31,7 +34,7 @@ export function ContactManagementTabs() {
         <TabsTrigger value="history" className="flex-none">
           <History />
           Historique
-          {mergeCount > 0 && <Badge variant="secondary">{mergeCount}</Badge>}
+          {historyCount > 0 && <Badge variant="secondary">{historyCount}</Badge>}
         </TabsTrigger>
       </TabsList>
 
@@ -53,11 +56,19 @@ export function ContactManagementTabs() {
         <MergeSuggestionsList />
       </TabsContent>
 
-      <TabsContent value="history" className="space-y-4 pt-2">
-        <p className="text-muted-foreground max-w-md text-sm">
-          Retrouve les fusions déjà appliquées — annule celles qui ne conviennent pas.
-        </p>
-        <MergeHistoryList />
+      <TabsContent value="history" className="space-y-6 pt-2">
+        <div className="space-y-4">
+          <p className="text-muted-foreground max-w-md text-sm">
+            Retrouve les fusions déjà appliquées — annule celles qui ne conviennent pas.
+          </p>
+          <MergeHistoryList />
+        </div>
+        <div className="space-y-4">
+          <p className="text-muted-foreground max-w-md text-sm">
+            Retrouve les canaux rattachés manuellement à un contact.
+          </p>
+          <LinkHistoryList />
+        </div>
       </TabsContent>
     </Tabs>
   );

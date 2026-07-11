@@ -112,3 +112,42 @@ export function toContactMerge(raw: RawContactMergeRow): ContactMerge {
     movedConversationsCount: raw.moved_conversation_ids.length,
   };
 }
+
+export interface RawContactLinkHistoryRow {
+  id: string;
+  provider: string;
+  linked_at: string;
+  undone_at: string | null;
+  moved_conversation_ids: string[];
+  target_contact: { id: string; name: string } | null;
+  source_contact: { id: string; name: string } | null;
+}
+
+const contactLinkHistoryContactSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+});
+
+export const contactLinkHistorySchema = z.object({
+  id: z.string(),
+  provider: z.string(),
+  linkedAt: z.string(),
+  undoneAt: z.string().nullable(),
+  targetContact: contactLinkHistoryContactSchema,
+  sourceContact: contactLinkHistoryContactSchema,
+  movedConversationsCount: z.number(),
+});
+
+export type ContactLinkHistory = z.infer<typeof contactLinkHistorySchema>;
+
+export function toContactLinkHistory(raw: RawContactLinkHistoryRow): ContactLinkHistory {
+  return {
+    id: raw.id,
+    provider: raw.provider,
+    linkedAt: raw.linked_at,
+    undoneAt: raw.undone_at,
+    targetContact: raw.target_contact ?? { id: "", name: "Contact inconnu" },
+    sourceContact: raw.source_contact ?? { id: "", name: "Contact inconnu" },
+    movedConversationsCount: raw.moved_conversation_ids.length,
+  };
+}

@@ -1,8 +1,10 @@
 import { API_CONTACT_LINKING } from "@/features/contact-linking/api";
 import {
+  RawContactLinkHistoryRow,
   RawContactMergeRow,
   RawLinkableContactRow,
   RawMergeSuggestionRow,
+  toContactLinkHistory,
   toContactMerge,
   toLinkableContact,
   toMergeSuggestion,
@@ -19,6 +21,10 @@ type LinkableContactsApiResponse = {
 
 type ContactMergesApiResponse = {
   merges: RawContactMergeRow[];
+};
+
+type ContactLinkHistoryApiResponse = {
+  history: RawContactLinkHistoryRow[];
 };
 
 export const mergeSuggestionsQueryKey = () => ["merge-suggestions"] as const;
@@ -96,5 +102,18 @@ export const contactMergesQueryOptions = () => ({
     );
 
     return data.merges.map(toContactMerge);
+  },
+});
+
+export const contactLinkHistoryQueryKey = () => ["contact-linking", "history"] as const;
+
+export const contactLinkHistoryQueryOptions = () => ({
+  queryKey: contactLinkHistoryQueryKey(),
+  queryFn: async () => {
+    const data = await fetchApi<ContactLinkHistoryApiResponse>(
+      API_CONTACT_LINKING.LIST_CONTACT_LINK_HISTORY(),
+    );
+
+    return data.history.map(toContactLinkHistory);
   },
 });
