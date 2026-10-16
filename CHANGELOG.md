@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.0](https://github.com/Tyronwilliam/HakoFlow/compare/hakoflow-v0.1.0...hakoflow-v0.2.0) (2026-10-16)
+
+
+### Features
+
+* **supabase:** soft-delete des contacts ([#22](https://github.com/Tyronwilliam/HakoFlow/issues/22)) ([024fa13](https://github.com/Tyronwilliam/HakoFlow/commit/024fa1312fb70f1a953dc38929bcb79444884a63))
+* **ui:** refactor inbox UI ([#20](https://github.com/Tyronwilliam/HakoFlow/issues/20)) ([6b23cc8](https://github.com/Tyronwilliam/HakoFlow/commit/6b23cc86c16a07902ba4fcd786d68ffd843ce520))
+
 ## 0.1.0 (2026-07-08)
 
 
