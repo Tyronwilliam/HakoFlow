@@ -1,35 +1,35 @@
-# Patterns d'architecture (features)
+# Architecture patterns (features)
 
-Convention à suivre pour chaque nouvelle feature (`contacts`, `reminders`,
-`inbox`, ...). Le but : aucune couleur/url/type en dur dispersés dans les
-composants, et un flux de données prévisible entre Supabase et l'UI.
+Convention to follow for every new feature (`contacts`, `reminders`,
+`inbox`, ...). The goal: no hardcoded colors/urls/types scattered across
+components, and a predictable data flow between Supabase and the UI.
 
-## Structure d'un dossier feature
+## Structure of a feature folder
 
 ```
 src/features/<feature>/
-├── api.ts            # constantes d'URL des endpoints de la feature
-├── adapters/         # raw (DB) -> shape front + schémas zod de réponse
-├── validators/        # schémas zod des données envoyées (formulaires, server actions)
+├── api.ts            # URL constants for the feature's endpoints
+├── adapters/         # raw (DB) -> front shape + zod response schemas
+├── validators/        # zod schemas for submitted data (forms, server actions)
 ├── hooks/             # useQuery / useMutation (Tanstack Query)
 ├── actions/           # Server Actions ("use server")
-└── components/        # UI de la feature
+└── components/        # feature UI
 ```
 
-Toutes les features n'ont pas besoin de tous ces dossiers — uniquement ceux
-nécessaires (ex: `auth` n'a pas d'`adapters`, `reminders` n'a pas encore
-d'`api.ts` car tout passe par des Server Actions).
+Not every feature needs all of these folders — only the ones that are
+necessary (e.g. `auth` has no `adapters`, `reminders` has no `api.ts` yet
+because everything goes through Server Actions).
 
-## Flux de lecture (GET) : DB → UI
+## Read flow (GET): DB → UI
 
 ```
 Supabase (route handler)
    │  select(...).eq(...)
    ▼
-RawXxxRow (type brut, miroir des colonnes DB)
+RawXxxRow (raw type, mirrors the DB columns)
    │  adapters/index.ts → toXxx(raw)
    ▼
-XxxItem (shape front, camelCase, valeurs par défaut appliquées)
+XxxItem (front shape, camelCase, defaults applied)
    │  zod schema xxxItemSchema.array().parse(json)
    ▼
 hooks/use-xxx.ts (useQuery)
@@ -40,9 +40,8 @@ components/xxx-list.tsx (QueryBoundary)
 
 ### 1. Route handler (`src/app/api/.../route.ts`)
 
-Récupère les données brutes Supabase et les passe à l'adapter. Ne fait
-**aucun** reformatage inline — toute la logique de transformation vit dans
-`adapters/`.
+Fetches the raw Supabase data and passes it to the adapter. Does **no** inline
+reformatting — all transformation logic lives in `adapters/`.
 
 ```ts
 // src/app/api/conversations/route.ts
@@ -59,14 +58,14 @@ return NextResponse.json({ conversations });
 
 ### 2. Adapter (`features/<feature>/adapters/index.ts`)
 
-Trois choses dans ce fichier :
+Three things in this file:
 
-- **`RawXxxRow`** : interface qui décrit exactement ce que renvoie la query
-  Supabase (types nullable, snake_case).
-- **`toXxx(raw)`** : fonction pure qui transforme le raw en shape front
-  (camelCase, valeurs par défaut via `??`, cast des enums).
-- **`xxxSchema`** (zod) + **`type Xxx = z.infer<typeof xxxSchema>`** : le
-  contrat de la réponse API côté client.
+- **`RawXxxRow`**: interface that describes exactly what the Supabase query
+  returns (nullable types, snake_case).
+- **`toXxx(raw)`**: pure function that turns the raw row into the front shape
+  (camelCase, default values via `??`, enum casts).
+- **`xxxSchema`** (zod) + **`type Xxx = z.infer<typeof xxxSchema>`**: the
+  contract of the API response on the client side.
 
 ```ts
 // src/features/inbox/adapters/index.ts
@@ -81,7 +80,7 @@ export function toConversationListItem(raw: RawConversationRow): ConversationLis
   return {
     id: raw.id,
     channel: raw.primary_channel as Channel,
-    contactName: raw.contacts?.name ?? "Inconnu",
+    contactName: raw.contacts?.name ?? "Unknown",
     unreadCount: raw.unread_count ?? 0,
     // ...
   };
@@ -98,9 +97,9 @@ export const conversationListItemSchema = z.object({
 export type ConversationListItem = z.infer<typeof conversationListItemSchema>;
 ```
 
-### 3. Endpoints centralisés (`features/<feature>/api.ts`)
+### 3. Centralized endpoints (`features/<feature>/api.ts`)
 
-Une seule constante par endpoint, jamais d'URL en dur dans un hook/composant.
+One constant per endpoint, never a hardcoded URL in a hook/component.
 
 ```ts
 // src/features/inbox/api.ts
@@ -111,11 +110,11 @@ export const API_INBOX = {
 
 ### 4. Hook (`features/<feature>/hooks/use-xxx.ts`)
 
-- `fetch` via la constante de `api.ts`
-- si `!response.ok` → `throw new Error(...)` (React Query le transforme en
-  `error` dans le composant)
-- `.parse()` (pas `.safeParse()`) sur la réponse — un payload invalide doit
-  throw et finir dans `error`, pas être ignoré silencieusement
+- `fetch` using the constant from `api.ts`
+- if `!response.ok` → `throw new Error(...)` (React Query turns it into
+  `error` in the component)
+- `.parse()` (not `.safeParse()`) on the response — an invalid payload must
+  throw and end up in `error`, not be silently ignored
 
 ```ts
 // src/features/inbox/hooks/use-conversations.ts
@@ -136,11 +135,11 @@ export function useConversations() {
 }
 ```
 
-### 5. Composant (`features/<feature>/components/xxx-list.tsx`)
+### 5. Component (`features/<feature>/components/xxx-list.tsx`)
 
-Toujours passer par `<QueryBoundary>` ([query-boundary.tsx](../src/components/shared/query-boundary.tsx))
-pour gérer loading / vide / erreur — ne jamais réécrire ces trois `if` à la
-main dans un composant de feature.
+Always go through `<QueryBoundary>` ([query-boundary.tsx](../src/components/shared/query-boundary.tsx))
+to handle loading / empty / error — never rewrite those three `if`s by hand in
+a feature component.
 
 ```tsx
 const { data: conversations = [], isLoading, error } = useConversations();
@@ -161,9 +160,9 @@ return (
 );
 ```
 
-## Flux d'écriture (POST/PUT/DELETE) : UI → DB
+## Write flow (POST/PUT/DELETE): UI → DB
 
-Pour l'instant via **Server Actions** (`"use server"`), pas de route API.
+For now via **Server Actions** (`"use server"`), no API route.
 
 ```
 components/xxx-form.tsx (useActionState)
@@ -171,22 +170,22 @@ components/xxx-form.tsx (useActionState)
    ▼
 actions/xxx.ts ("use server")
    │  validators/index.ts → xxxSchema.safeParse(formData)
-   │  si invalide → return { error: ... } (affiché dans le form)
-   │  si valide → supabase.from(...).insert/update(...)
+   │  if invalid → return { error: ... } (displayed in the form)
+   │  if valid → supabase.from(...).insert/update(...)
    ▼
 Supabase
 ```
 
 ### 1. Validator (`features/<feature>/validators/index.ts`)
 
-Le schéma zod **côté input** (ce que l'utilisateur envoie), distinct du
-schéma de réponse (`adapters`).
+The **input-side** zod schema (what the user submits), distinct from the
+response schema (`adapters`).
 
 ```ts
 // src/features/auth/validators/index.ts
 export const signInSchema = z.object({
-  email: z.string().email("Adresse email invalide"),
-  password: z.string().min(1, "Mot de passe requis"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(1, "Password is required"),
 });
 
 export type SignInInput = z.infer<typeof signInSchema>;
@@ -215,15 +214,15 @@ export async function signIn(_prevState: SignInState, formData: FormData): Promi
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
 
-  if (error) return { error: "Email ou mot de passe incorrect." };
+  if (error) return { error: "Incorrect email or password." };
 
   redirect("/inbox");
 }
 ```
 
-### 3. Formulaire (`features/<feature>/components/xxx-form.tsx`)
+### 3. Form (`features/<feature>/components/xxx-form.tsx`)
 
-`useActionState` (React 19) relie le formulaire à la Server Action :
+`useActionState` (React 19) connects the form to the Server Action:
 
 ```tsx
 "use client";
@@ -238,20 +237,20 @@ export function LoginForm() {
       <Input name="email" type="email" required />
       {state.error && <p className="text-destructive text-sm">{state.error}</p>}
       <Button type="submit" disabled={isPending}>
-        {isPending ? "..." : "Envoyer"}
+        {isPending ? "..." : "Submit"}
       </Button>
     </form>
   );
 }
 ```
 
-## Récapitulatif : où mettre quoi ?
+## Summary: where does what go?
 
-| Question                                              | Réponse                                                                               |
+| Question                                              | Answer                                                                                |
 | ----------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| "Je dois reformatter une row Supabase pour l'UI"      | `adapters/index.ts` → `toXxx()`                                                       |
-| "Je dois valider la réponse d'une API en zod"         | `adapters/index.ts` → `xxxSchema`                                                     |
-| "Je dois valider les données d'un formulaire"         | `validators/index.ts`                                                                 |
-| "J'écris en dur une URL `/api/...` dans un hook"      | Non — ajouter la constante dans `api.ts`                                              |
-| "Je veux gérer loading/empty/error dans un composant" | `<QueryBoundary>` ([query-boundary.tsx](../src/components/shared/query-boundary.tsx)) |
-| "Je dois écrire en base depuis un formulaire"         | Server Action dans `actions/` + `useActionState`                                      |
+| "I need to reformat a Supabase row for the UI"        | `adapters/index.ts` → `toXxx()`                                                       |
+| "I need to validate an API response with zod"         | `adapters/index.ts` → `xxxSchema`                                                     |
+| "I need to validate form data"                        | `validators/index.ts`                                                                 |
+| "I'm hardcoding an `/api/...` URL in a hook"          | No — add the constant in `api.ts`                                                     |
+| "I want to handle loading/empty/error in a component" | `<QueryBoundary>` ([query-boundary.tsx](../src/components/shared/query-boundary.tsx)) |
+| "I need to write to the database from a form"         | Server Action in `actions/` + `useActionState`                                        |

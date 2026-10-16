@@ -1,12 +1,12 @@
-# Playwright (tests e2e)
+# Playwright (e2e tests)
 
-## Quoi
+## What
 
-Playwright pilote un vrai navigateur (Chromium, Firefox, WebKit) pour tester
-l'application **de bout en bout**, comme le ferait un utilisateur réel : naviguer,
-cliquer, remplir des formulaires, vérifier ce qui s'affiche.
+Playwright drives a real browser (Chromium, Firefox, WebKit) to test the
+application **end to end**, the way a real user would: navigate, click, fill in
+forms, check what is displayed.
 
-Configuration : [`playwright.config.ts`](../playwright.config.ts)
+Configuration: [`playwright.config.ts`](../playwright.config.ts)
 
 ```ts
 export default defineConfig({
@@ -32,27 +32,26 @@ export default defineConfig({
 });
 ```
 
-Points clés :
+Key points:
 
-- **`testDir: "./e2e"`** — tous les tests e2e vivent dans [`e2e/`](../e2e/), à
-  séparer des tests unitaires Vitest (co-localisés dans `src/`, voir
-  [vitest.md](./vitest.md)).
-- **`projects`** — chaque test est rejoué sur 3 moteurs de rendu (Chromium,
-  Firefox, WebKit) pour détecter les bugs spécifiques à un navigateur.
-- **`webServer`** — Playwright démarre automatiquement `bun run dev` et attend
-  que `http://localhost:3000` réponde avant de lancer les tests. En local,
-  `reuseExistingServer: true` réutilise un serveur déjà lancé (gain de temps en
-  dev).
-- **`retries: 2` en CI** — un test flaky (réseau lent, animation...) est rejoué
-  jusqu'à 2 fois en CI avant d'être considéré en échec (en local, 0 retry, pour
-  voir immédiatement les vrais échecs).
-- **`trace: "on-first-retry"`** — si un test échoue puis réussit au retry,
-  Playwright garde une trace (timeline, captures, requêtes réseau) du run en
-  échec pour debug.
-- **`forbidOnly: !!process.env.CI`** — empêche qu'un `test.only(...)` oublié par
-  un dev ne passe en CI (la CI échouerait si elle détecte un `.only`).
+- **`testDir: "./e2e"`** — all e2e tests live in [`e2e/`](../e2e/), kept separate
+  from the Vitest unit tests (co-located in `src/`, see [vitest.md](./vitest.md)).
+- **`projects`** — every test is replayed on 3 rendering engines (Chromium,
+  Firefox, WebKit) to detect browser-specific bugs.
+- **`webServer`** — Playwright automatically starts `bun run dev` and waits for
+  `http://localhost:3000` to respond before running the tests. Locally,
+  `reuseExistingServer: true` reuses an already running server (saves time
+  during development).
+- **`retries: 2` in CI** — a flaky test (slow network, animation...) is retried
+  up to 2 times in CI before being considered failed (locally, 0 retries, to
+  see real failures immediately).
+- **`trace: "on-first-retry"`** — if a test fails then passes on retry,
+  Playwright keeps a trace (timeline, screenshots, network requests) of the
+  failed run for debugging.
+- **`forbidOnly: !!process.env.CI`** — prevents a `test.only(...)` forgotten by
+  a dev from slipping into CI (CI fails if it detects an `.only`).
 
-Test d'exemple : [`e2e/example.spec.ts`](../e2e/example.spec.ts)
+Example test: [`e2e/example.spec.ts`](../e2e/example.spec.ts)
 
 ```ts
 import { test, expect } from "@playwright/test";
@@ -63,54 +62,53 @@ test("homepage loads", async ({ page }) => {
 });
 ```
 
-## Pourquoi
+## Why
 
-- Vitest + RTL testent des composants **isolés** (voir [vitest.md](./vitest.md)) ;
-  Playwright teste des **parcours utilisateurs complets** (ex: "un utilisateur
-  s'inscrit, configure un webhook Discord, et reçoit une notification") en
-  conditions quasi-réelles, navigateur compris.
-- Tester sur 3 moteurs (Chromium/Firefox/WebKit) attrape des bugs CSS/JS
-  spécifiques à Safari (WebKit) souvent invisibles en dev sur Chrome.
-- `webServer` rend les tests reproductibles : pas besoin de penser à lancer
-  `bun run dev` avant — Playwright le fait pour vous (et l'arrête après).
+- Vitest + RTL test **isolated** components (see [vitest.md](./vitest.md));
+  Playwright tests **complete user journeys** (e.g. "a user signs up, configures
+  a Discord webhook, and receives a notification") in near-real conditions,
+  browser included.
+- Testing on 3 engines (Chromium/Firefox/WebKit) catches CSS/JS bugs specific to
+  Safari (WebKit), often invisible when developing in Chrome.
+- `webServer` makes tests reproducible: no need to remember to run
+  `bun run dev` beforehand — Playwright does it for you (and stops it afterward).
 
-## Comment
+## How
 
 ```bash
 bun run test:e2e
 ```
 
-Lance `playwright test` : Playwright démarre le serveur Next.js (`bun run dev`),
-attend qu'il soit prêt, exécute tous les fichiers `e2e/*.spec.ts` sur les 3
-navigateurs, puis génère un rapport HTML (`playwright-report/`).
+Runs `playwright test`: Playwright starts the Next.js server (`bun run dev`),
+waits for it to be ready, runs all `e2e/*.spec.ts` files on the 3 browsers, then
+generates an HTML report (`playwright-report/`).
 
-Pour déboguer un test en mode interactif :
+To debug a test interactively:
 
 ```bash
-bunx playwright test --ui      # interface graphique pas-à-pas
-bunx playwright test --debug   # mode debug avec inspecteur
-bunx playwright show-report    # ouvrir le dernier rapport HTML
+bunx playwright test --ui      # step-by-step graphical interface
+bunx playwright test --debug   # debug mode with inspector
+bunx playwright show-report    # open the latest HTML report
 ```
 
-## Où / Quand
+## Where / When
 
-- **Exécuté en CI** dans le job `e2e` de [`ci.yml`](../.github/workflows/ci.yml)
-  (voir [ci.md](./ci.md)), en parallèle du job `ci` (lint/typecheck/tests/build).
-  Le rapport HTML est uploadé comme artefact GitHub Actions même en cas d'échec.
-- À lancer **localement avant une PR** sur les parcours critiques (auth,
-  paiement Stripe, configuration de webhooks).
-- Complémentaire des tests Vitest : si un composant a déjà un test unitaire
-  solide, pas besoin de le re-tester en e2e — réserver Playwright aux parcours
-  bout-en-bout (multi-pages, multi-étapes).
+- **Run in CI** in the `e2e` job of [`ci.yml`](../.github/workflows/ci.yml)
+  (see [ci.md](./ci.md)), in parallel with the `ci` job (lint/typecheck/tests/build).
+  The HTML report is uploaded as a GitHub Actions artifact even on failure.
+- Run **locally before a PR** on critical journeys (auth, Stripe payment,
+  webhook configuration).
+- Complementary to the Vitest tests: if a component already has a solid unit
+  test, there's no need to test it again in e2e — reserve Playwright for
+  end-to-end journeys (multi-page, multi-step).
 
-## Suggestions d'ajout
+## Suggested additions
 
-- **Authentification Supabase dans les tests** : utiliser
-  [`storageState`](https://playwright.dev/docs/auth) pour se connecter une fois
-  et réutiliser la session dans tous les tests (évite de refaire un login à
-  chaque test).
-- **Tests de paiement Stripe** : utiliser le
-  [mode test Stripe](https://stripe.com/docs/testing) avec des cartes de test
-  dédiées, combiné à des webhooks Stripe simulés via la Stripe CLI.
-- **Visual regression** : `expect(page).toHaveScreenshot()` pour détecter les
-  changements visuels non intentionnels sur les pages clés (dashboard, pricing).
+- **Supabase authentication in tests**: use
+  [`storageState`](https://playwright.dev/docs/auth) to log in once and reuse the
+  session across all tests (avoids redoing a login in every test).
+- **Stripe payment tests**: use
+  [Stripe test mode](https://stripe.com/docs/testing) with dedicated test cards,
+  combined with Stripe webhooks simulated via the Stripe CLI.
+- **Visual regression**: `expect(page).toHaveScreenshot()` to detect unintended
+  visual changes on key pages (dashboard, pricing).
