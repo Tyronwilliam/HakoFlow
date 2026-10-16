@@ -10,12 +10,12 @@ Actions, Route Handlers).
 
 ### Variables d'environnement
 
-[`.env.local.example`](../.env.local.example) liste les variables nécessaires.
+[`.env.example`](../.env.example) liste les variables nécessaires.
 Copier ce fichier en `.env.local` (ignoré par git, voir `.gitignore`) et remplir
 avec les valeurs du projet Supabase (`Project Settings > API`) :
 
 ```bash
-cp .env.local.example .env.local
+cp .env.example .env.local
 ```
 
 > ⚠️ `next dev` exécute [`src/proxy.ts`](../src/proxy.ts) sur chaque requête,

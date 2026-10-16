@@ -2,7 +2,7 @@ import type { ContactIdentity } from "@/features/channels/shared/types";
 import { normalizeEmail } from "@/features/channels/shared/normalize-email";
 import type { GmailMessage } from "@/features/channels/gmail/types";
 
-const FROM_HEADER_PATTERN = /^(?:"?([^"<]*)"?\s*)?<?([^\s<>]+@[^\s<>]+)>?$/;
+const FROM_HEADER_PATTERN = /^(?:"?([^"<]*)"?\s*<)?([^\s<>]+@[^\s<>]+)>?$/;
 
 export function extractGmailContactIdentity(raw: GmailMessage): ContactIdentity {
   const fromHeader = raw.payload.headers.find((header) => header.name === "From")?.value ?? "";
