@@ -1,18 +1,17 @@
 # Husky + Commitlint
 
-## Quoi
+## What
 
-**Husky** permet de déclencher des scripts à des moments clés de Git (commit,
-push...) via des "git hooks" versionnés dans le dépôt (dossier
-[`.husky/`](../.husky/)).
+**Husky** lets you trigger scripts at key Git moments (commit, push...) via
+"git hooks" versioned in the repository ([`.husky/`](../.husky/) folder).
 
-**Commitlint** vérifie que les messages de commit respectent la convention
-[Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`,
-`chore:`, etc.). C'est ce format que **Release Please** utilise ensuite pour
-générer automatiquement les versions et les changelogs (voir
+**Commitlint** checks that commit messages follow the
+[Conventional Commits](https://www.conventionalcommits.org/) convention (`feat:`,
+`fix:`, `chore:`, etc.). This is the format that **Release Please** then uses to
+automatically generate versions and changelogs (see
 [release-please.md](./release-please.md)).
 
-Hooks configurés :
+Configured hooks:
 
 - [`.husky/pre-commit`](../.husky/pre-commit)
 
@@ -20,18 +19,17 @@ Hooks configurés :
   bunx lint-staged
   ```
 
-  → exécute ESLint et Prettier **uniquement sur les fichiers stagés** (voir
-  section lint-staged ci-dessous). Bloque le commit si une erreur ESLint non
-  auto-corrigeable subsiste.
+  → runs ESLint and Prettier **only on staged files** (see the lint-staged
+  section below). Blocks the commit if a non-auto-fixable ESLint error remains.
 
 - [`.husky/commit-msg`](../.husky/commit-msg)
   ```sh
   bunx commitlint --edit "$1"
   ```
-  → bloque le commit si le message ne respecte pas Conventional Commits.
+  → blocks the commit if the message does not follow Conventional Commits.
 
-Configuration Commitlint : [`commitlint.config.ts`](../commitlint.config.ts)
-(étend `@commitlint/config-conventional`, le set de règles standard).
+Commitlint configuration: [`commitlint.config.ts`](../commitlint.config.ts)
+(extends `@commitlint/config-conventional`, the standard rule set).
 
 ```ts
 const config: UserConfig = {
@@ -42,21 +40,20 @@ const config: UserConfig = {
 };
 ```
 
-- **`scope-empty: [2, "never"]`** — rend le `(scope)` **obligatoire** sur chaque
-  commit. `fix: corrige un bug` est **rejeté**, `fix(billing): corrige un bug`
-  est **accepté**. Le `2` signifie "erreur" (bloque le commit), pas juste un
-  warning.
-- **`subject-case`** (héritée de `@commitlint/config-conventional`, déjà active
-  sans config supplémentaire) — la description doit commencer par une
-  **minuscule** et ne pas être en "Sentence case", "Start Case", "PascalCase" ou
-  "UPPERCASE". `fix(billing): Corrige un bug` est **rejeté**,
-  `fix(billing): corrige un bug` est **accepté**.
+- **`scope-empty: [2, "never"]`** — makes the `(scope)` **mandatory** on every
+  commit. `fix: fix a bug` is **rejected**, `fix(billing): fix a bug` is
+  **accepted**. The `2` means "error" (blocks the commit), not just a warning.
+- **`subject-case`** (inherited from `@commitlint/config-conventional`, already
+  active with no extra config) — the description must start with a
+  **lowercase** letter and must not be in "Sentence case", "Start Case",
+  "PascalCase" or "UPPERCASE". `fix(billing): Fix a bug` is **rejected**,
+  `fix(billing): fix a bug` is **accepted**.
 
 ### lint-staged
 
-[`lint-staged`](https://github.com/lint-staged/lint-staged) exécute des commandes
-uniquement sur les fichiers **stagés** (`git add`), au lieu de tout le projet.
-Configuration dans [`package.json`](../package.json) :
+[`lint-staged`](https://github.com/lint-staged/lint-staged) runs commands only
+on **staged** files (`git add`), instead of the whole project. Configuration in
+[`package.json`](../package.json):
 
 ```jsonc
 "lint-staged": {
@@ -65,59 +62,59 @@ Configuration dans [`package.json`](../package.json) :
 }
 ```
 
-- Sur les fichiers `.ts`/`.tsx` : `eslint --fix` corrige automatiquement ce qui
-  peut l'être (imports inutilisés, style...), puis `prettier --write` formate.
-- Sur `.json`/`.md`/`.css` : seul Prettier s'applique (pas de règles ESLint
-  pertinentes — utile pour les fichiers de `docs/`, `package.json`, etc.).
-- Les fichiers corrigés sont automatiquement re-stagés par `lint-staged` avant
-  que le commit ne se finalise.
+- On `.ts`/`.tsx` files: `eslint --fix` automatically fixes what it can (unused
+  imports, style...), then `prettier --write` formats.
+- On `.json`/`.md`/`.css`: only Prettier applies (no relevant ESLint rules —
+  useful for the `docs/` files, `package.json`, etc.).
+- Fixed files are automatically re-staged by `lint-staged` before the commit
+  is finalized.
 
-Le script `prepare` dans `package.json` (`"prepare": "husky"`) installe
-automatiquement les hooks lors de `bun install`.
+The `prepare` script in `package.json` (`"prepare": "husky"`) automatically
+installs the hooks on `bun install`.
 
-## Pourquoi
+## Why
 
-- **`pre-commit` + lint-staged** : évite de polluer l'historique avec du code qui
-  ne respecte pas les règles ESLint/Prettier — feedback instantané avant même de
-  pousser, et corrections automatiques quand c'est possible. Ne traiter que les
-  fichiers stagés garde le hook rapide même quand le projet grossit.
-- **`commit-msg` + Commitlint** : un historique de commits propre et structuré est
-  ce qui permet à Release Please de déterminer automatiquement le type de version
-  à bumper (patch/minor/major) et de générer le `CHANGELOG.md`.
+- **`pre-commit` + lint-staged**: avoids polluting the history with code that
+  doesn't follow the ESLint/Prettier rules — instant feedback before even
+  pushing, and automatic fixes when possible. Only processing staged files keeps
+  the hook fast even as the project grows.
+- **`commit-msg` + Commitlint**: a clean, structured commit history is what lets
+  Release Please automatically determine which version type to bump
+  (patch/minor/major) and generate the `CHANGELOG.md`.
 
-## Comment
+## How
 
-Rien à faire manuellement : dès qu'on fait `git commit`, les deux hooks s'exécutent
-dans l'ordre (`pre-commit` puis `commit-msg`). Format de message attendu :
+Nothing to do manually: as soon as you run `git commit`, both hooks execute in
+order (`pre-commit` then `commit-msg`). Expected message format:
 
 ```
 <type>(<scope>): <description>
 
-# Exemples valides
-feat(auth): ajoute la connexion via Supabase
-fix(billing): corrige le calcul de la TVA Stripe
-chore(deps): met à jour next-safe-action
+# Valid examples
+feat(auth): add Supabase sign-in
+fix(billing): fix Stripe VAT calculation
+chore(deps): update next-safe-action
 
-# Rejeté (scope manquant)
-fix: corrige le calcul de la TVA Stripe
+# Rejected (missing scope)
+fix: fix Stripe VAT calculation
 
-# Rejeté (description avec majuscule)
-fix(billing): Corrige le calcul de la TVA Stripe
+# Rejected (description starts with an uppercase letter)
+fix(billing): Fix Stripe VAT calculation
 ```
 
-Types courants : `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `ci`, `perf`.
+Common types: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `ci`, `perf`.
 
-## Où / Quand
+## Where / When
 
-- Hooks exécutés **localement, à chaque commit**, sur la machine du développeur.
-- N'a pas d'effet en CI (les hooks Git ne s'exécutent pas sur GitHub Actions) —
-  c'est pour ça que `ci.yml` re-vérifie `lint`, `typecheck`, `test`, `build`
-  indépendamment (voir [eslint.md](./eslint.md), [vitest.md](./vitest.md)).
+- Hooks run **locally, on every commit**, on the developer's machine.
+- They have no effect in CI (Git hooks don't run on GitHub Actions) — that's why
+  `ci.yml` re-checks `lint`, `typecheck`, `test`, `build` independently (see
+  [eslint.md](./eslint.md), [vitest.md](./vitest.md)).
 
-## Suggestions d'ajout
+## Suggested additions
 
-- **Hook `pre-push`** : lancer `bun run typecheck` et/ou `bun run test` avant un
-  `git push`, pour attraper les erreurs de types/tests sans ralentir chaque commit.
-- **Validation du scope Commitlint** : restreindre les `scope` autorisés (ex:
-  `auth`, `billing`, `webhooks`, `ui`) via `rules.scope-enum` dans
-  `commitlint.config.ts`, pour des changelogs plus lisibles.
+- **`pre-push` hook**: run `bun run typecheck` and/or `bun run test` before a
+  `git push`, to catch type/test errors without slowing down every commit.
+- **Commitlint scope validation**: restrict the allowed `scope`s (e.g. `auth`,
+  `billing`, `webhooks`, `ui`) via `rules.scope-enum` in `commitlint.config.ts`,
+  for more readable changelogs.

@@ -1,113 +1,112 @@
 # Vitest
 
-## Quoi
+## What
 
-Vitest est le framework de tests unitaires/intégration, utilisé avec
-**React Testing Library** (RTL) pour tester les composants React, et **MSW**
-(Mock Service Worker) pour mocker les appels réseau (Supabase, Stripe, Resend...).
+Vitest is the unit/integration testing framework, used with
+**React Testing Library** (RTL) to test React components, and **MSW**
+(Mock Service Worker) to mock network calls (Supabase, Stripe, Resend...).
 
-Configuration : [`vitest.config.ts`](../vitest.config.ts)
+Configuration: [`vitest.config.ts`](../vitest.config.ts)
 
 ```ts
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    tsconfigPaths: true, // résout l'alias @/* défini dans tsconfig.json
+    tsconfigPaths: true, // resolves the @/* alias defined in tsconfig.json
   },
   test: {
-    environment: "jsdom", // simule un DOM navigateur
-    globals: true, // describe/it/expect disponibles sans import
+    environment: "jsdom", // simulates a browser DOM
+    globals: true, // describe/it/expect available without import
     setupFiles: ["./vitest.setup.ts"],
-    exclude: ["node_modules", "e2e/**"], // les tests e2e sont gérés par Playwright
+    exclude: ["node_modules", "e2e/**"], // e2e tests are handled by Playwright
   },
 });
 ```
 
-[`vitest.setup.ts`](../vitest.setup.ts) importe `@testing-library/jest-dom/vitest`
-pour avoir des matchers comme `toBeInTheDocument()`, `toHaveTextContent()`, etc.
+[`vitest.setup.ts`](../vitest.setup.ts) imports `@testing-library/jest-dom/vitest`
+to get matchers like `toBeInTheDocument()`, `toHaveTextContent()`, etc.
 
-## Pourquoi
+## Why
 
-- Tester la logique métier (validation Zod, Server Actions, hooks) et le rendu des
-  composants sans lancer un vrai navigateur (rapide, adapté au TDD).
-- `environment: "jsdom"` permet de tester des composants React qui manipulent le
-  DOM (formulaires, clics...).
-- MSW permet de simuler les réponses Supabase/Stripe/Resend dans les tests sans
-  appeler les vraies API (tests déterministes, pas de coût, pas de réseau).
+- Test business logic (Zod validation, Server Actions, hooks) and component
+  rendering without launching a real browser (fast, suited to TDD).
+- `environment: "jsdom"` makes it possible to test React components that
+  manipulate the DOM (forms, clicks...).
+- MSW makes it possible to simulate Supabase/Stripe/Resend responses in tests
+  without calling the real APIs (deterministic tests, no cost, no network).
 
-## Comment
+## How
 
 ```bash
-bun run test        # exécute tous les tests une fois (CI)
-bun run test:watch  # mode watch pour le développement
+bun run test        # runs all tests once (CI)
+bun run test:watch  # watch mode for development
 ```
 
-Exemple de test existant : [`src/app/page.test.tsx`](../src/app/page.test.tsx)
-— rend le composant `Home` et vérifie la présence du rôle `main`.
+Existing test example: [`src/app/page.test.tsx`](../src/app/page.test.tsx)
+— renders the `Home` component and checks for the presence of the `main` role.
 
-En CI, `process.env.GITHUB_ACTIONS` est automatiquement défini, ce qui active le
-reporter `github-actions` en plus du reporter par défaut (voir
-[`vitest.config.ts`](../vitest.config.ts)) : les tests qui échouent apparaissent
-comme des **annotations directement sur les lignes concernées** dans l'onglet
-"Files changed" de la PR.
+In CI, `process.env.GITHUB_ACTIONS` is automatically set, which enables the
+`github-actions` reporter in addition to the default reporter (see
+[`vitest.config.ts`](../vitest.config.ts)): failing tests appear as
+**annotations directly on the relevant lines** in the PR's "Files changed" tab.
 
-Convention : un fichier `*.test.tsx` (ou `*.test.ts`) à côté du fichier testé
-(co-localisation), ex. `src/app/page.tsx` → `src/app/page.test.tsx`.
+Convention: a `*.test.tsx` (or `*.test.ts`) file next to the tested file
+(co-location), e.g. `src/app/page.tsx` → `src/app/page.test.tsx`.
 
-## Où / Quand
+## Where / When
 
-- **Localement** : `bun run test:watch` pendant le développement.
-- **CI** : `bun run test` dans [`ci.yml`](../.github/workflows/ci.yml), après
-  lint/typecheck et avant le build.
-- **Pas** branché sur le hook `pre-commit` actuellement (seul `lint` y est) — voir
-  [husky.md](./husky.md) pour la discussion lint-staged / tests rapides.
+- **Locally**: `bun run test:watch` during development.
+- **CI**: `bun run test` in [`ci.yml`](../.github/workflows/ci.yml), after
+  lint/typecheck and before the build.
+- Currently **not** hooked into the `pre-commit` hook (only `lint` is) — see
+  [husky.md](./husky.md) for the lint-staged / fast tests discussion.
 
 ## Mocks (`src/mocks/`)
 
-Le dossier [`src/mocks/`](../src/mocks/) centralise les mocks réseau (MSW) et les
-factories de données utilisées en tests et en seed local :
+The [`src/mocks/`](../src/mocks/) folder centralizes network mocks (MSW) and
+data factories used in tests and local seeding:
 
 ```
 src/mocks/
-├── data/        # JSON générés par seed-mock-data (gitignoré, non commité)
+├── data/        # JSON generated by seed-mock-data (gitignored, not committed)
 ├── factories/
 │   ├── channels/    # createSlackMessage, createGmailMessages, createDiscordMessages...
 │   └── supabase/
-│       ├── tables/      # un factory par table (createContactRow, createMessageRow...)
-│       └── scenario.ts  # createWorkspaceScenario() — génère un scénario cohérent
-│                         # (contacts + contact_channels + conversations + messages liés)
-├── handlers/    # handlers MSW (http.get/post) pour Slack, Discord, Gmail
-└── index.ts     # réexporte factories + handlers
+│       ├── tables/      # one factory per table (createContactRow, createMessageRow...)
+│       └── scenario.ts  # createWorkspaceScenario() — generates a consistent scenario
+│                         # (contacts + contact_channels + conversations + linked messages)
+├── handlers/    # MSW handlers (http.get/post) for Slack, Discord, Gmail
+└── index.ts     # re-exports factories + handlers
 ```
 
 - `bun run seed-mock-data` (script [`scripts/seed-mock-data.ts`](../scripts/seed-mock-data.ts))
-  utilise les factories pour générer les fichiers JSON dans `src/mocks/data/`
-  (seed fixe par défaut `1312` pour des données reproductibles, voir `--seed=`).
-- Les handlers ([`src/mocks/handlers/`](../src/mocks/handlers/)) lisent ces JSON et
-  interceptent les appels aux API Slack/Discord/Gmail (`@ts-nocheck` car les
-  fixtures générées ne sont pas typées).
-- `src/mocks/data/` est gitignoré : chaque dev (ou la CI) régénère ses propres
-  fixtures via `seed-mock-data` avant de lancer les tests qui en dépendent.
+  uses the factories to generate the JSON files in `src/mocks/data/`
+  (default fixed seed `1312` for reproducible data, see `--seed=`).
+- The handlers ([`src/mocks/handlers/`](../src/mocks/handlers/)) read these JSON
+  files and intercept calls to the Slack/Discord/Gmail APIs (`@ts-nocheck`
+  because the generated fixtures are not typed).
+- `src/mocks/data/` is gitignored: each dev (or CI) regenerates their own
+  fixtures via `seed-mock-data` before running the tests that depend on them.
 
-> ⚠️ Les handlers MSW (`src/mocks/handlers/index.ts`) ne sont **pas encore branchés**
-> sur `setupServer()` dans [`vitest.setup.ts`](../vitest.setup.ts) — voir
-> "Suggestions d'ajout".
+> ⚠️ The MSW handlers (`src/mocks/handlers/index.ts`) are **not yet wired**
+> to `setupServer()` in [`vitest.setup.ts`](../vitest.setup.ts) — see
+> "Suggested additions".
 
-## Suggestions d'ajout
+## Suggested additions
 
-- **Coverage** : ajouter `@vitest/coverage-v8` et un script `test:coverage`, avec
-  un seuil minimal (ex: 70%) vérifié en CI.
-- **Brancher les handlers MSW** : appeler `setupServer(...handlers)` dans
-  `vitest.setup.ts` (avec `beforeAll(() => server.listen())`,
-  `afterEach(() => server.resetHandlers())`, `afterAll(() => server.close())`) pour
-  que les handlers de `src/mocks/handlers/` interceptent réellement les appels
-  réseau pendant les tests.
-- **Handlers Supabase/Stripe/Resend** : `src/mocks/factories/supabase/` génère déjà
-  des données de scénario (`createWorkspaceScenario`), mais il n'y a pas encore de
-  handlers MSW pour `@supabase/ssr`, Stripe ou Resend.
-- **Tests des Server Actions `next-safe-action`** : ajouter un dossier
-  `src/actions/__tests__` pour valider que les schémas Zod rejettent bien les
-  payloads invalides (utile pour les webhooks Discord/Slack/Gmail mentionnés dans
-  la stack).
-- **Tests de snapshot** pour les composants Shadcn/ui personnalisés, si on les
-  modifie beaucoup.
+- **Coverage**: add `@vitest/coverage-v8` and a `test:coverage` script, with a
+  minimum threshold (e.g. 70%) checked in CI.
+- **Wire the MSW handlers**: call `setupServer(...handlers)` in
+  `vitest.setup.ts` (with `beforeAll(() => server.listen())`,
+  `afterEach(() => server.resetHandlers())`, `afterAll(() => server.close())`) so
+  that the handlers in `src/mocks/handlers/` actually intercept network calls
+  during tests.
+- **Supabase/Stripe/Resend handlers**: `src/mocks/factories/supabase/` already
+  generates scenario data (`createWorkspaceScenario`), but there are no MSW
+  handlers yet for `@supabase/ssr`, Stripe or Resend.
+- **Tests for `next-safe-action` Server Actions**: add a
+  `src/actions/__tests__` folder to validate that the Zod schemas properly reject
+  invalid payloads (useful for the Discord/Slack/Gmail webhooks mentioned in the
+  stack).
+- **Snapshot tests** for customized Shadcn/ui components, if they get modified a
+  lot.

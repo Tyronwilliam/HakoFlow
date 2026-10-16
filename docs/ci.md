@@ -1,18 +1,17 @@
 # CI (GitHub Actions)
 
-## Quoi
+## What
 
-[`.github/workflows/ci.yml`](../.github/workflows/ci.yml) est le pipeline
-d'intégration continue. Il rejoue, dans un environnement propre (GitHub-hosted
-runner Ubuntu), toutes les vérifications qu'un dev devrait déjà avoir faites
-localement via les hooks Husky (voir [husky.md](./husky.md)) — au cas où elles
-auraient été contournées ou pour confirmer qu'elles passent sur une machine
-neutre.
+[`.github/workflows/ci.yml`](../.github/workflows/ci.yml) is the continuous
+integration pipeline. In a clean environment (GitHub-hosted Ubuntu runner), it
+replays all the checks a dev should already have run locally via the Husky hooks
+(see [husky.md](./husky.md)) — in case they were bypassed, or to confirm they
+pass on a neutral machine.
 
-Le pipeline contient **deux jobs indépendants**, exécutés en parallèle :
+The pipeline contains **two independent jobs**, run in parallel:
 
-- **`ci`** : format, lint, typecheck, tests unitaires, build.
-- **`e2e`** : tests end-to-end Playwright.
+- **`ci`**: format, lint, typecheck, unit tests, build.
+- **`e2e`**: Playwright end-to-end tests.
 
 ```yaml
 name: CI
@@ -111,95 +110,94 @@ jobs:
           retention-days: 7
 ```
 
-### Job `ci`
+### `ci` job
 
-Les étapes s'exécutent **dans l'ordre, séquentiellement**, et le job s'arrête au
-premier échec (comportement par défaut de GitHub Actions) :
+The steps run **in order, sequentially**, and the job stops at the first
+failure (GitHub Actions' default behavior):
 
-1. **`actions/checkout@v4`** — récupère le code du commit/PR.
-2. **`oven-sh/setup-bun@v2`** — installe Bun (le gestionnaire de paquets et runtime
-   utilisé par tout le projet, voir [README.md](./README.md)).
-3. **`actions/cache@v4`** — met en cache `~/.bun/install/cache` (le cache global
-   des paquets téléchargés par Bun), avec une clé basée sur le hash de
-   `bun.lock`. Si `bun.lock` n'a pas changé depuis le dernier run, l'étape
-   suivante (`bun install`) n'a quasiment rien à télécharger. `restore-keys`
-   permet de réutiliser un cache même partiellement périmé (ex: une seule
-   dépendance a changé) plutôt que de tout re-télécharger.
-4. **`bun install --frozen-lockfile`** — installe les dépendances en utilisant
-   exactement les versions de `bun.lock` (échoue si `bun.lock` n'est pas à jour
-   avec `package.json`, ce qui évite les "ça marche chez moi").
-5. **`bun run format:check`** — vérifie que tout le code est formaté avec Prettier
-   (voir [prettier.md](./prettier.md)). N'écrit rien, échoue si un fichier n'est
-   pas formaté.
-6. **`bun run lint`** — ESLint (voir [eslint.md](./eslint.md)).
-7. **`bun run typecheck`** — `tsc --noEmit`, vérifie les types TypeScript sans
-   générer de fichiers JS.
-8. **`bun run test`** — tests unitaires Vitest (voir [vitest.md](./vitest.md)).
-   Grâce au reporter `github-actions` (activé automatiquement quand
-   `process.env.GITHUB_ACTIONS` est défini, voir
-   [`vitest.config.ts`](../vitest.config.ts)), les échecs de test apparaissent
-   comme des **annotations directement sur les lignes concernées dans l'onglet
-   "Files changed" de la PR**, sans avoir à ouvrir les logs.
-9. **`bun run build`** — build de production Next.js (`next build`). Si le build
-   échoue (erreur de types, import cassé, variable d'env manquante au build...),
-   la CI échoue.
+1. **`actions/checkout@v4`** — fetches the code of the commit/PR.
+2. **`oven-sh/setup-bun@v2`** — installs Bun (the package manager and runtime
+   used throughout the project, see [README.md](./README.md)).
+3. **`actions/cache@v4`** — caches `~/.bun/install/cache` (the global cache of
+   packages downloaded by Bun), with a key based on the hash of `bun.lock`. If
+   `bun.lock` hasn't changed since the last run, the next step (`bun install`)
+   has almost nothing to download. `restore-keys` allows reusing a cache even if
+   it's partially stale (e.g. a single dependency changed) rather than
+   re-downloading everything.
+4. **`bun install --frozen-lockfile`** — installs dependencies using exactly the
+   versions in `bun.lock` (fails if `bun.lock` is out of sync with
+   `package.json`, which avoids "works on my machine" issues).
+5. **`bun run format:check`** — checks that all the code is formatted with
+   Prettier (see [prettier.md](./prettier.md)). Writes nothing, fails if a file
+   is not formatted.
+6. **`bun run lint`** — ESLint (see [eslint.md](./eslint.md)).
+7. **`bun run typecheck`** — `tsc --noEmit`, checks the TypeScript types without
+   emitting JS files.
+8. **`bun run test`** — Vitest unit tests (see [vitest.md](./vitest.md)).
+   Thanks to the `github-actions` reporter (enabled automatically when
+   `process.env.GITHUB_ACTIONS` is set, see
+   [`vitest.config.ts`](../vitest.config.ts)), test failures appear as
+   **annotations directly on the relevant lines in the PR's "Files changed"
+   tab**, without having to open the logs.
+9. **`bun run build`** — Next.js production build (`next build`). If the build
+   fails (type error, broken import, env variable missing at build time...), CI
+   fails.
 
-### Job `e2e`
+### `e2e` job
 
-1. Checkout + setup Bun + cache (identique au job `ci`).
-2. **`actions/cache@v4` sur `~/.cache/ms-playwright`** — met en cache les
-   binaires des navigateurs (Chromium, Firefox, WebKit, ~300 Mo), clé basée sur
-   `bun.lock` (donc invalidée si la version de `@playwright/test` change).
-   - **Cache miss** : `bunx playwright install --with-deps` télécharge les
-     navigateurs **et** leurs dépendances système (paquets apt).
-   - **Cache hit** : les navigateurs sont déjà présents, on lance seulement
-     `bunx playwright install-deps` pour réinstaller les paquets système (eux
-     ne sont pas mis en cache, mais cette étape est rapide).
-3. **`bun run test:e2e`** — lance `playwright test` (voir
-   [playwright.md](./playwright.md)). Playwright démarre lui-même `bun run dev`
-   via `webServer`, donc pas d'étape de build/démarrage de serveur séparée.
-   Le serveur de dev exécute [`src/proxy.ts`](../src/proxy.ts) sur chaque
-   requête, qui a besoin de `NEXT_PUBLIC_SUPABASE_URL` et
-   `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` pour s'initialiser (voir
-   [supabase.md](./supabase.md)) — sans ces variables, `next dev` plante au
-   démarrage. Des valeurs **placeholder** suffisent ici : les tests e2e ne
-   font pas de vrais appels Supabase, seule la présence (non vide) des
-   variables est requise.
-4. **`actions/upload-artifact@v4`** avec `if: always()` — uploade le rapport HTML
-   Playwright (`playwright-report/`) même si les tests échouent, pour pouvoir
-   l'inspecter depuis l'onglet "Actions" de la PR (traces, captures d'écran,
-   vidéos en cas d'échec).
+1. Checkout + Bun setup + cache (identical to the `ci` job).
+2. **`actions/cache@v4` on `~/.cache/ms-playwright`** — caches the browser
+   binaries (Chromium, Firefox, WebKit, ~300 MB), with a key based on
+   `bun.lock` (so it's invalidated if the `@playwright/test` version changes).
+   - **Cache miss**: `bunx playwright install --with-deps` downloads the
+     browsers **and** their system dependencies (apt packages).
+   - **Cache hit**: the browsers are already present, so we only run
+     `bunx playwright install-deps` to reinstall the system packages (they are
+     not cached, but this step is fast).
+3. **`bun run test:e2e`** — runs `playwright test` (see
+   [playwright.md](./playwright.md)). Playwright starts `bun run dev` itself via
+   `webServer`, so there's no separate build/server start step.
+   The dev server runs [`src/proxy.ts`](../src/proxy.ts) on every request, which
+   needs `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+   to initialize (see [supabase.md](./supabase.md)) — without these variables,
+   `next dev` crashes at startup. **Placeholder** values are enough here: the e2e
+   tests make no real Supabase calls, only the (non-empty) presence of the
+   variables is required.
+4. **`actions/upload-artifact@v4`** with `if: always()` — uploads the Playwright
+   HTML report (`playwright-report/`) even if the tests fail, so it can be
+   inspected from the PR's "Actions" tab (traces, screenshots, videos on
+   failure).
 
-## Pourquoi
+## Why
 
-- **Filet de sécurité indépendant de la machine du dev** : les hooks Husky
-  (`pre-commit`, `commit-msg`) sont locaux et peuvent être contournés
-  (`git commit --no-verify`) ou absents si quelqu'un n'a pas lancé
-  `bun install` récemment. La CI garantit que rien de cassé n'arrive sur `main`.
-- **`--frozen-lockfile`** : empêche qu'une dépendance soit installée dans une
-  version différente de celle commitée dans `bun.lock`, source classique de bugs
-  "ça marche en local mais pas en CI".
-- **Ordre des étapes** : du plus rapide/cheap (format, lint) au plus lent
-  (build), pour échouer vite (`fail fast`) et économiser du temps de CI.
-- **`bun run test` avant `bun run build`** : pas de raison de payer le coût d'un
-  build complet si les tests unitaires échouent déjà.
+- **Safety net independent of the dev's machine**: the Husky hooks
+  (`pre-commit`, `commit-msg`) are local and can be bypassed
+  (`git commit --no-verify`) or missing if someone hasn't run `bun install`
+  recently. CI guarantees that nothing broken lands on `main`.
+- **`--frozen-lockfile`**: prevents a dependency from being installed in a
+  different version than the one committed in `bun.lock`, a classic source of
+  "works locally but not in CI" bugs.
+- **Step order**: from the fastest/cheapest (format, lint) to the slowest
+  (build), to fail fast and save CI time.
+- **`bun run test` before `bun run build`**: no reason to pay for a full build
+  if the unit tests already fail.
 
-## Où / Quand
+## Where / When
 
-- **`pull_request`** : se déclenche sur **toute PR**, quelle que soit la branche
-  cible — donne un retour avant le merge.
-- **`push` sur `main`** : re-vérifie après un merge (utile si la PR a été mergée
-  sans que la CI soit à jour, ex: merge avec conflits résolus en ligne).
-- Tourne **en parallèle** du workflow [Release Please](./release-please.md) (qui
-  se déclenche aussi sur `push: main`) — les deux sont indépendants.
-- Les jobs `ci` et `e2e` tournent **en parallèle** entre eux (aucune dépendance) —
-  les tests e2e Playwright (voir [playwright.md](./playwright.md)) ne ralentissent
-  pas le retour rapide du job `ci`.
+- **`pull_request`**: triggers on **any PR**, whatever the target branch — gives
+  feedback before the merge.
+- **`push` on `main`**: re-checks after a merge (useful if the PR was merged
+  without CI being up to date, e.g. a merge with conflicts resolved online).
+- Runs **in parallel** with the [Release Please](./release-please.md) workflow
+  (which also triggers on `push: main`) — the two are independent.
+- The `ci` and `e2e` jobs run **in parallel** with each other (no dependency) —
+  the Playwright e2e tests (see [playwright.md](./playwright.md)) don't slow
+  down the quick feedback of the `ci` job.
 
-## Suggestions d'ajout
+## Suggested additions
 
-- **Matrice de versions** : si besoin de tester sur plusieurs versions de Bun ou
-  Node, utiliser `strategy.matrix`.
-- **Limiter le job `e2e` aux PR** : si le temps de CI devient un problème, ne
-  déclencher `e2e` que sur `pull_request` (pas sur chaque push sur `main`), via
-  une condition `if:` au niveau du job.
+- **Version matrix**: if you need to test on several Bun or Node versions, use
+  `strategy.matrix`.
+- **Limit the `e2e` job to PRs**: if CI time becomes a problem, only trigger
+  `e2e` on `pull_request` (not on every push to `main`), via an `if:` condition
+  at the job level.
